@@ -29,7 +29,7 @@ ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response,
 Add the following line to your Podfile:
 
 ```ruby
-pod 'ASAAttribution', '0.1.0'
+pod 'ASAAttribution'
 ```
 
 To get your API token please visit [asaattribution.com](https://asaattribution.com).
