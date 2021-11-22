@@ -23,6 +23,8 @@ public class ASAAttribution {
         return result
     }()
     
+    public var isDebug: Bool = false
+    
     private var attributionCompleted: Bool {
         get {
             return UserDefaults.standard.bool(forKey: ASAAttribution.attributionCompletedDefaultsKey)
@@ -31,9 +33,9 @@ public class ASAAttribution {
             UserDefaults.standard.set(newValue, forKey: ASAAttribution.attributionCompletedDefaultsKey)
         }
     }
-    
+
     public func attribute(apiToken: String, completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
-        if self.attributionCompleted {
+        if self.attributionCompleted || self.isDebug {
             return
         }
 
@@ -48,12 +50,11 @@ public class ASAAttribution {
             }
             
             self.attributeASAToken(attributionToken) { response, error in
-                guard let response = response,
-                      error != nil else {
+                guard let response = response else {
                     completion(nil, error)
                     return
                 }
-                
+
                 self.attributeASATokenResponse(attributionToken: attributionToken,
                                                apiToken: apiToken,
                                                asaResponse: response,
@@ -71,7 +72,7 @@ public class ASAAttribution {
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
         request.httpBody = Data(token.utf8)
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard error != nil,
+            guard error == nil,
                   let data = data,
                   let result = try? JSONSerialization.jsonObject(with: data,
                                                                  options: []) as? [String: AnyHashable] else {
@@ -103,13 +104,19 @@ public class ASAAttribution {
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                guard error != nil,
+                guard error == nil,
                       let data = data,
                       let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []),
                       let responseJSON = responseJSON as? [String: AnyHashable] else {
                           completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
                           return
                       }
+                
+                if let status = responseJSON["status"] as? String, status == "debug_token_received" {
+                    print("ASAAttribution: everything configured properly, but you've sent a debug token. You can now add\n\n#if DEBUG\n\tASAAttribution.shared.isDebug = true\n#endif\n\nbefore calling attribution to stop receiveing this message.")
+                    completion(nil, ASAAttributionErrorCodes.debugAttributionTokenReceived.error())
+                    return
+                }
                 
                 guard let status = responseJSON["attribution_status"] as? String else {
                     completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
