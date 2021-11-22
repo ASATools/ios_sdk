@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASAAttribution'
-  s.version          = '0.1.2'
+  s.version          = '0.1.3'
   s.summary          = 'iOS library for detecting apple search ads install keyword and other info'
 
   s.description      = <<-DESC
@@ -19,6 +19,7 @@ DESC
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'vdugnist' => 'vdugnist@gmail.com' }
   s.source           = { :git => 'git@github.com:vdugnist/asaattribution_lib.git', :tag => s.version.to_s }
+  s.swift_version    = '5.0'
 
   s.ios.deployment_target = '9.0'
   s.source_files = 'ASAAttribution/Classes/**/*'

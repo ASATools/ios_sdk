@@ -1,23 +1,23 @@
 # ASAAttribution
 
 Library that allows you to get information about apple search ads install keyword, campaign, adgroup and other info. Here is how it looks:
-```
+```swift
 ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response, error in
-// 	{
-// 		"attribution_status": "attributed", (attributed, organic)
-// 		"organization_id": 40669820,
-// 		"campaign_id": 542370539,
-// 		"ad_group_id": 542317095,
-// 		"keyword_id": 87675432,
-// 		"creative_set_id": 542317136,
-// 		"conversion_type": "Download", (download, redownload)
-// 		"region": "US",
-// 		"campaign_name": "MyAppName US Woman 18-35",
-// 		"ad_group_name": "Branded Keywords Campaign",
-// 		"keyword_name": "my app name"
-// 	}
+  print(response.analyticsValues())
 }
 ```
+
+Output:
+```javascript
+{
+  "asa_campaign_name": "MyAppName US Woman 18-35",
+  "asa_ad_group_name": "Branded Keywords Campaign",
+  "asa_keyword_name": "my app name",
+  "asa_conversion_type": "download"
+}
+```
+
+For all response values please check [ASAAttributionResponse](https://github.com/vdugnist/asaattribution_lib/blob/main/ASAAttribution/Classes/ASAAttributionResponse.swift) class.
 
 
 [![Version](https://img.shields.io/cocoapods/v/ASAAttribution.svg?style=flat)](https://cocoapods.org/pods/ASAAttribution)
@@ -26,10 +26,22 @@ ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response,
 
 ## Installation
 
-Add the following line to your Podfile:
+Add the following line to your Podfile and run pod install:
 
 ```ruby
 pod 'ASAAttribution'
+```
+
+From applicationDidFinishLaunching method call:
+```swift
+ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response, error in
+  if let error = error {
+    // handle error response
+    return
+  }
+
+  // handle success response using response!.analyticsValues() or your custom format
+}
 ```
 
 To get your API token please visit [asaattribution.com](https://asaattribution.com).
