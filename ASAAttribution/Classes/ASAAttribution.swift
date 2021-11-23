@@ -40,25 +40,29 @@ public class ASAAttribution {
         }
 
         if #available(iOS 14.3, *) {
-            let attributionToken: String
+            DispatchQueue.global().async {
+                let attributionToken: String
 
-            do {
-                try attributionToken = AAAttribution.attributionToken()
-            } catch {
-                completion(nil, ASAAttributionErrorCodes.errorGeneratingAttributionToken.error())
-                return
-            }
-            
-            self.attributeASAToken(attributionToken) { response, error in
-                guard let response = response else {
-                    completion(nil, error)
+                do {
+                    try attributionToken = AAAttribution.attributionToken()
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(nil, ASAAttributionErrorCodes.errorGeneratingAttributionToken.error())
+                    }
                     return
                 }
 
-                self.attributeASATokenResponse(attributionToken: attributionToken,
-                                               apiToken: apiToken,
-                                               asaResponse: response,
-                                               completion: completion)
+                self.attributeASAToken(attributionToken) { response, error in
+                    guard let response = response else {
+                        completion(nil, error)
+                        return
+                    }
+
+                    self.attributeASATokenResponse(attributionToken: attributionToken,
+                                                   apiToken: apiToken,
+                                                   asaResponse: response,
+                                                   completion: completion)
+                }
             }
         } else {
             completion(nil, ASAAttributionErrorCodes.unsupportedIOSVersion.error())
