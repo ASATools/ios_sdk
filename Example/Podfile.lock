@@ -1,5 +1,5 @@
 PODS:
-  - ASAAttribution (0.1.0)
+  - ASAAttribution (0.1.4)
 
 DEPENDENCIES:
   - ASAAttribution (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ASAAttribution: 0ee7648760f6b62c2588df8cd395887deddcf365
+  ASAAttribution: e73252614da9d01d35e7e0f27030fe9398074790
 
 PODFILE CHECKSUM: e29e2afddd205dabef5fea0fc8499d255b4fb76b
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2

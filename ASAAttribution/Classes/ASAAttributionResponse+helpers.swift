@@ -24,7 +24,7 @@ extension ASAAttribution.AttributionResponse {
 }
 
 extension ASAAttribution.AttributionStatus {
-    func description() -> String {
+    public func description() -> String {
         switch self {
         case .attributed: return "attributed"
         case .organic: return "organic"

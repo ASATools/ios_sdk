@@ -15,14 +15,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        ASAAttribution.sharedInstance.attribute(apiToken: "your_key_here") { response, error in
-            if let error = error {
-                // Analytics.logEvent("asa_attribution_fail", parameters: ["error_code": error.code])
-                print(error)
+        ASAAttribution.sharedInstance.attribute(apiToken: "6a49166d-cd10-43b9-94ed-3423b55172ff") { response, error in
+            guard let response = response else {
+                if let error = error {
+                    print("error: " + error.localizedDescription)
+                }
                 return
             }
+
+            print("response status: " + response.status.description())
+            print("response keyword: " + (response.result?.keywordName ?? "unknown"))
             
-            // Analytics.logEvent("asa_attribution_success", parameters: response!.analyticsValues()]
+            if let data = try? JSONSerialization.data(withJSONObject: response.analyticsValues(),
+                                                      options: [.prettyPrinted]),
+               let formattedString = String(data: data, encoding: .utf8) {
+                print("analytics values: " + formattedString)
+            }
         }
 
         return true
