@@ -4,10 +4,4 @@ platform :ios, '9.0'
 
 target 'ASAAttribution_Example' do
   pod 'ASAAttribution', :path => '../'
-
-  target 'ASAAttribution_Tests' do
-    inherit! :search_paths
-
-    
-  end
 end
