@@ -12,6 +12,10 @@ public class ASAAttribution {
     public static let sharedInstance = ASAAttribution()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
+    
+    // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
+    private var appleAttributionRequestsAttempts: Int = 3
+    private let appleAttributionRequestDelay: TimeInterval = 5.0
 
     public var userID: String = {
         if let result = UserDefaults.standard.string(forKey: ASAAttribution.userIdDefaultsKey) {
@@ -76,17 +80,28 @@ public class ASAAttribution {
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
         request.httpBody = Data(token.utf8)
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard error == nil,
-                  let data = data,
-                  let result = try? JSONSerialization.jsonObject(with: data,
-                                                                 options: []) as? [String: AnyHashable] else {
-                DispatchQueue.main.async {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error())
-                }
-                return
-            }
-
             DispatchQueue.main.async {
+                guard let response = response as? HTTPURLResponse else {
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error())
+                    return
+                }
+                
+                if response.statusCode != 200 {
+                    self.appleAttributionRequestsAttempts -= 1
+
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
+                        self.attributeASAToken(token, completion: completion)
+                    }
+                    return
+                }
+                
+                guard let data = data,
+                      let result = try? JSONSerialization.jsonObject(with: data, options: [])
+                        as? [String: AnyHashable] else {
+                          completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error())
+                          return
+                      }
+
                 completion(result, nil)
             }
         }.resume()
