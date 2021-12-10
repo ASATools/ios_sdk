@@ -26,9 +26,14 @@ public enum ASAAttributionErrorCodes: Int {
         }
     }
     
-    public func error() -> Error {
+    public func error(message: String? = nil) -> Error {
+        var userInfo: [String: Any] = [NSLocalizedDescriptionKey: self.errorCodeDescription()]
+        if let message = message {
+            userInfo[NSLocalizedFailureReasonErrorKey] = message
+        }
+
         return NSError(domain: String(describing: ASAAttribution.self),
                        code: self.rawValue,
-                       userInfo: [NSLocalizedDescriptionKey: self.errorCodeDescription()])
+                       userInfo: userInfo)
     }
 }

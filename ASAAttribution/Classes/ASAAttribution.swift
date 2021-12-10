@@ -98,7 +98,7 @@ public class ASAAttribution {
                 guard let data = data,
                       let result = try? JSONSerialization.jsonObject(with: data, options: [])
                         as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error())
+                            completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "status code: \(response.statusCode)"))
                           return
                       }
 
