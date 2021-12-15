@@ -12,6 +12,7 @@ public class ASAAttribution {
     public static let sharedInstance = ASAAttribution()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
+    private static let installDateDefaultsKey = "asa_attribution_install_date"
     
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
@@ -25,6 +26,16 @@ public class ASAAttribution {
         let result = UUID().uuidString
         UserDefaults.standard.set(result, forKey: ASAAttribution.userIdDefaultsKey)
         return result
+    }()
+    
+    private var installDate: TimeInterval = {
+        if let date = UserDefaults.standard.object(forKey: ASAAttribution.installDateDefaultsKey) as? Date  {
+            return date.timeIntervalSince1970
+        }
+        
+        let date = Date()
+        UserDefaults.standard.set(date, forKey: ASAAttribution.installDateDefaultsKey)
+        return date.timeIntervalSince1970
     }()
     
     public var isDebug: Bool = false
@@ -42,6 +53,8 @@ public class ASAAttribution {
         if self.attributionCompleted || self.isDebug {
             return
         }
+        
+        let installDate = self.installDate
 
         if #available(iOS 14.3, *) {
             DispatchQueue.global().async {
@@ -64,6 +77,7 @@ public class ASAAttribution {
 
                     self.attributeASATokenResponse(attributionToken: attributionToken,
                                                    apiToken: apiToken,
+                                                   installDate: installDate,
                                                    asaResponse: response,
                                                    completion: completion)
                 }
@@ -109,6 +123,7 @@ public class ASAAttribution {
     
     private func attributeASATokenResponse(attributionToken: String,
                                            apiToken: String,
+                                           installDate: TimeInterval,
                                            asaResponse: [String: AnyHashable],
                                            completion: @escaping (_ response: AttributionResponse?,
                                                                   _ error: Error?) -> ()) {
@@ -118,6 +133,7 @@ public class ASAAttribution {
         let bodyJSON: [String: AnyHashable] = ["application_token": apiToken,
                                                "attribution_token": attributionToken,
                                                "user_id": self.userID,
+                                               "install_date": installDate,
                                                "asa_attribution_response": asaResponse]
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
