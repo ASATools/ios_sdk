@@ -8,15 +8,23 @@
 import Foundation
 import AdServices
 
-public class ASAAttribution {
+public class ASAAttribution: NSObject {
     public static let sharedInstance = ASAAttribution()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
+    static let purchaseEvents = "asa_attribution_purchase_events"
     
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
     private let appleAttributionRequestDelay: TimeInterval = 5.0
+    var isSyncingPurchases: Bool = false
+    var apiToken: String? = nil
+    
+    public override init() {
+        super.init()
+        self.subscribeToPaymentQueue()
+    }
 
     public var userID: String = {
         if let result = UserDefaults.standard.string(forKey: ASAAttribution.userIdDefaultsKey) {
@@ -49,7 +57,11 @@ public class ASAAttribution {
         }
     }
 
-    public func attribute(apiToken: String, completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+    public func attribute(apiToken: String,
+                          completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+        self.apiToken = apiToken
+        self.syncPurchasedEvents()
+
         if self.attributionCompleted || self.isDebug {
             return
         }
