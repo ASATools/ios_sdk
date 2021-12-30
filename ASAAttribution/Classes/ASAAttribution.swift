@@ -108,7 +108,7 @@ public class ASAAttribution: NSObject {
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 guard let response = response as? HTTPURLResponse else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error())
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response)))"))
                     return
                 }
                 
@@ -155,7 +155,7 @@ public class ASAAttribution: NSObject {
                       let data = data,
                       let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []),
                       let responseJSON = responseJSON as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
+                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json"))
                           return
                       }
                 
@@ -166,7 +166,7 @@ public class ASAAttribution: NSObject {
                 }
                 
                 guard let status = responseJSON["attribution_status"] as? String else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution status is empty"))
                     return
                 }
                 
@@ -177,10 +177,10 @@ public class ASAAttribution: NSObject {
                     completion(AttributionResponse(status: .organic, result: nil), nil)
                     return
                 case "error":
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status code is error"))
                     return
                 default:
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status key unsupported: " + status))
                     return
                 }
                 
@@ -193,7 +193,7 @@ public class ASAAttribution: NSObject {
                       let campaignName = responseJSON["campaign_name"] as? String,
                       let adGroupName = responseJSON["ad_group_name"] as? String
                 else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error())
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
                           return
                       }
                         
