@@ -44,7 +44,7 @@ ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response,
 }
 ```
 
-To get your API token please visit [asaattribution.com](https://asaattribution.com).
+Note, that completion block will only be called **once** if there is a success response. To get your API token please visit [asaattribution.com](https://asaattribution.com).
 
 ## Author
 
