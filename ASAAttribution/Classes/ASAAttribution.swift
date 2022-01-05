@@ -107,11 +107,16 @@ public class ASAAttribution: NSObject {
         request.httpBody = Data(token.utf8)
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                guard let response = response as? HTTPURLResponse else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response)))"))
+                if let error = error {
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "error response: \(error.localizedDescription)"))
                     return
                 }
                 
+                guard let response = response as? HTTPURLResponse else {
+                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response))) data: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
+                    return
+                }
+
                 if response.statusCode != 200 {
                     self.appleAttributionRequestsAttempts -= 1
 
@@ -133,7 +138,7 @@ public class ASAAttribution: NSObject {
         }.resume()
     }
     
-    private func attributeASATokenResponse(attributionToken: String,
+    public func attributeASATokenResponse(attributionToken: String,
                                            apiToken: String,
                                            installDate: TimeInterval,
                                            asaResponse: [String: AnyHashable],
@@ -155,7 +160,7 @@ public class ASAAttribution: NSObject {
                       let data = data,
                       let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []),
                       let responseJSON = responseJSON as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json"))
+                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
                           return
                       }
                 
