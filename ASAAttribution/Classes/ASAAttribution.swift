@@ -82,11 +82,6 @@ public class ASAAttribution: NSObject {
                 }
 
                 self.attributeASAToken(attributionToken) { response, error in
-                    guard let response = response else {
-                        completion(nil, error)
-                        return
-                    }
-
                     self.attributeASATokenResponse(attributionToken: attributionToken,
                                                    apiToken: apiToken,
                                                    installDate: installDate,
@@ -141,17 +136,19 @@ public class ASAAttribution: NSObject {
     public func attributeASATokenResponse(attributionToken: String,
                                            apiToken: String,
                                            installDate: TimeInterval,
-                                           asaResponse: [String: AnyHashable],
+                                           asaResponse: [String: AnyHashable]?,
                                            completion: @escaping (_ response: AttributionResponse?,
                                                                   _ error: Error?) -> ()) {
         var request = URLRequest(url: URL(string:"https://asaattribution.com/api/attribution")!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let bodyJSON: [String: AnyHashable] = ["application_token": apiToken,
+
+        var bodyJSON: [String: AnyHashable] = ["application_token": apiToken,
                                                "attribution_token": attributionToken,
                                                "user_id": self.userID,
-                                               "install_date": installDate,
-                                               "asa_attribution_response": asaResponse]
+                                               "install_date": installDate]
+        bodyJSON["asa_attribution_response"] = asaResponse
+
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
         URLSession.shared.dataTask(with: request) { data, response, error in

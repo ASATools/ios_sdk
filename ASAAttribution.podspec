@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASAAttribution'
-  s.version          = '0.2.2'
+  s.version          = '0.3.0'
   s.summary          = 'iOS library for detecting apple search ads install keyword and other info'
 
   s.description      = <<-DESC
