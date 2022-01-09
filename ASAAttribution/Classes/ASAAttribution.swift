@@ -23,6 +23,13 @@ public class ASAAttribution: NSObject {
     
     public override init() {
         super.init()
+        
+        let purchasesMigratedKey = "asaattribution_purchases_migrated"
+        if UserDefaults.standard.bool(forKey: purchasesMigratedKey) == false {
+            UserDefaults.standard.removeObject(forKey: ASAAttribution.purchaseEvents)
+            UserDefaults.standard.set(true, forKey: purchasesMigratedKey)
+        }
+
         self.subscribeToPaymentQueue()
     }
 

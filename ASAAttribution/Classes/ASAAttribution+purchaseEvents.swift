@@ -20,19 +20,30 @@ extension ASAAttribution: SKPaymentTransactionObserver {
             transactions.filter { (tr) -> Bool in
                 return tr.transactionState == .purchased
             }.forEach { transaction in
-                self.savePurchasedTransactionWith(productIdentifier: transaction.payment.productIdentifier)
+                guard let transactionId = transaction.transactionIdentifier else {
+                    return
+                }
+                self.savePurchasedTransactionWith(transactionId: transactionId,
+                                                  productIdentifier: transaction.payment.productIdentifier)
                 self.syncPurchasedEvents()
             }
         }
     }
     
-    private func savePurchasedTransactionWith(productIdentifier: String) {
+    private func savePurchasedTransactionWith(transactionId: String, productIdentifier: String) {
         guard let receiptURL = Bundle.main.appStoreReceiptURL,
               let receiptData = try? Data(contentsOf: receiptURL) else {
                   return
               }
         var events = self.getPurchaseEvents() ?? []
+        guard !events.contains(where: { event in
+            return event.transactionId == transactionId
+        }) else {
+            return
+        }
+
         let purchaseEvent = ASAAttributionPurchaseEvent(purchaseDate: Date(),
+                                                        transactionId: transactionId,
                                                         productId: productIdentifier,
                                                         receipt: receiptData.base64EncodedString())
         events.append(purchaseEvent)
@@ -49,7 +60,9 @@ extension ASAAttribution: SKPaymentTransactionObserver {
         }
         
         guard let purchases = self.getPurchaseEvents(),
-              let purchase = purchases.first else {
+              let purchase = purchases.first(where: { event in
+                  !event.synced
+              }) else {
             return
         }
 
@@ -76,7 +89,7 @@ extension ASAAttribution: SKPaymentTransactionObserver {
                 
                 var purchases = self.getPurchaseEvents()!
                 if let index = purchases.firstIndex(of: purchase) {
-                    purchases.remove(at: index)
+                    purchases[index].synced = true
                 }
                 self.setPurchaseEvents(purchases)
                 self.syncPurchasedEvents()

@@ -9,8 +9,10 @@ import Foundation
 
 struct ASAAttributionPurchaseEvent: Equatable, Codable {
     let purchaseDate: Date
+    let transactionId: String
     let productId: String
     let receipt: String
+    var synced: Bool = false
     
     func dictionaryRepresentation() -> [String: AnyHashable] {
         return [
