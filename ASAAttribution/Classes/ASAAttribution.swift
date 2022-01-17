@@ -9,7 +9,7 @@ import Foundation
 import AdServices
 
 public class ASAAttribution: NSObject {
-    public static let sharedInstance = ASAAttribution()
+    @objc public static let sharedInstance = ASAAttribution()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
@@ -33,7 +33,7 @@ public class ASAAttribution: NSObject {
         self.subscribeToPaymentQueue()
     }
 
-    public var userID: String = {
+    @objc public var userID: String = {
         if let result = UserDefaults.standard.string(forKey: ASAAttribution.userIdDefaultsKey) {
             return result
         }
@@ -64,7 +64,7 @@ public class ASAAttribution: NSObject {
         }
     }
 
-    public func attribute(apiToken: String,
+    @objc public func attribute(apiToken: String,
                           completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
         self.apiToken = apiToken
         self.syncPurchasedEvents()
@@ -197,7 +197,7 @@ public class ASAAttribution: NSObject {
                       let campaignId = responseJSON["campaign_id"] as? Int,
                       let adGroupId = responseJSON["ad_group_id"] as? Int,
                       let conversionTypeString = responseJSON["conversion_type"] as? String,
-                      let conversionType = AttributionResult.ConversionType(rawValue: conversionTypeString),
+                      let conversionType = AttributionResult.ConversionType.from(string: conversionTypeString),
                       let region = responseJSON["region"] as? String,
                       let campaignName = responseJSON["campaign_name"] as? String,
                       let adGroupName = responseJSON["ad_group_name"] as? String

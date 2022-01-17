@@ -8,12 +8,25 @@
 import Foundation
 
 extension ASAAttribution.AttributionResult {
-    public enum ConversionType: String {
-        case download = "Download"
-        case redownload = "Redownload"
+    @objc public enum ConversionType: Int {
+        case download
+        case redownload
         
         func description() -> String {
-            return self.rawValue.lowercased()
+            switch self {
+            case .download: return "download"
+            case .redownload: return "redownload"
+            }
+        }
+        
+        static func from(string: String) -> ConversionType? {
+            switch string {
+            case "Download": return .download
+            case "Redownload": return .redownload
+            default:
+                assert(false)
+                return nil
+            }
         }
     }
 }

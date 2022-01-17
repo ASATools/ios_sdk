@@ -8,7 +8,7 @@
 import Foundation
 
 extension ASAAttribution.AttributionResponse {
-    public func analyticsValues() -> [String: AnyHashable] {
+    @objc public func analyticsValues() -> [String: AnyHashable] {
         var values: [String: AnyHashable] = ["asa_attribution_status": self.status.description()]
         
         if let result = self.result {
@@ -20,14 +20,5 @@ extension ASAAttribution.AttributionResponse {
         }
         
         return values
-    }
-}
-
-extension ASAAttribution.AttributionStatus {
-    public func description() -> String {
-        switch self {
-        case .attributed: return "attributed"
-        case .organic: return "organic"
-        }
     }
 }
