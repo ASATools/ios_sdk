@@ -16,7 +16,7 @@ struct ASAAttributionPurchaseEvent: Equatable, Codable {
     
     func dictionaryRepresentation() -> [String: AnyHashable] {
         return [
-            "purchase_date": self.purchaseDate.timeIntervalSince1970,
+            "transaction_date": self.purchaseDate.timeIntervalSince1970,
             "product_id": self.productId,
             "product_receipt": self.receipt
         ]

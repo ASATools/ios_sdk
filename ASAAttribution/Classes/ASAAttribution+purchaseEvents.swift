@@ -20,17 +20,19 @@ extension ASAAttribution: SKPaymentTransactionObserver {
             transactions.filter { (tr) -> Bool in
                 return tr.transactionState == .purchased
             }.forEach { transaction in
-                guard let transactionId = transaction.transactionIdentifier else {
+                guard let transactionId = transaction.transactionIdentifier,
+                      let transactionDate = transaction.transactionDate else {
                     return
                 }
                 self.savePurchasedTransactionWith(transactionId: transactionId,
-                                                  productIdentifier: transaction.payment.productIdentifier)
+                                                  productIdentifier: transaction.payment.productIdentifier,
+                                                  transactionDate: transactionDate)
                 self.syncPurchasedEvents()
             }
         }
     }
     
-    private func savePurchasedTransactionWith(transactionId: String, productIdentifier: String) {
+    private func savePurchasedTransactionWith(transactionId: String, productIdentifier: String, transactionDate: Date) {
         guard let receiptURL = Bundle.main.appStoreReceiptURL,
               let receiptData = try? Data(contentsOf: receiptURL) else {
                   return
@@ -42,7 +44,7 @@ extension ASAAttribution: SKPaymentTransactionObserver {
             return
         }
 
-        let purchaseEvent = ASAAttributionPurchaseEvent(purchaseDate: Date(),
+        let purchaseEvent = ASAAttributionPurchaseEvent(purchaseDate: transactionDate,
                                                         transactionId: transactionId,
                                                         productId: productIdentifier,
                                                         receipt: receiptData.base64EncodedString())
