@@ -3,7 +3,11 @@
 Library that allows you to get information about apple search ads install keyword, campaign, adgroup and other info. Here is how it looks:
 ```swift
 ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response, error in
-  print(response.analyticsValues())
+  if let response = response {
+    print(response.analyticsValues())
+  } else {
+    print(error)
+  }
 }
 ```
 
@@ -35,12 +39,11 @@ pod 'ASAAttribution'
 From applicationDidFinishLaunching method call:
 ```swift
 ASAAttribution.sharedInstance.attribute(apiToken: "your_token_here") { response, error in
-  if let error = error {
+  if let response = response {
+    // handle success response using response!.analyticsValues() or your custom format
+  } else {
     // handle error response
-    return
   }
-
-  // handle success response using response!.analyticsValues() or your custom format
 }
 ```
 
