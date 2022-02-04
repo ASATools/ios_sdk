@@ -164,7 +164,7 @@ public class ASAAttribution: NSObject {
                       let data = data,
                       let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []),
                       let responseJSON = responseJSON as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
+                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: data ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
                           return
                       }
                 
