@@ -17,7 +17,7 @@ Output:
   "asa_campaign_name": "MyAppName US Woman 18-35",
   "asa_ad_group_name": "Branded Keywords Campaign",
   "asa_keyword_name": "my app name",
-  "asa_conversion_type": "download"
+  "asa_store_country": "US"
 }
 ```
 

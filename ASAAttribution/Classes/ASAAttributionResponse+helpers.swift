@@ -15,8 +15,11 @@ extension ASAAttribution.AttributionResponse {
             values["asa_campaign_name"] = result.campaignName
             values["asa_ad_group_name"] = result.adGroupName
             values["asa_keyword_name"] = result.keywordName
-            values["asa_conversion_type"] = result.conversionType.description()
-            values["asa_creative_set_id"] = result.creativeSetId
+            values["asa_store_country"] = result.region
+            
+            if let creativeSet = result.creativeSetId {
+                values["asa_creative_set_id"] = creativeSet.intValue
+            }
         }
         
         return values
