@@ -114,12 +114,12 @@ public class ASAAttribution: NSObject {
                     return
                 }
                 
-                guard let response = response as? HTTPURLResponse else {
+                guard let httpResponse = response as? HTTPURLResponse else {
                     completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response))) data: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
                     return
                 }
 
-                if response.statusCode != 200 {
+                if httpResponse.statusCode != 200 {
                     self.appleAttributionRequestsAttempts -= 1
 
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
@@ -131,7 +131,7 @@ public class ASAAttribution: NSObject {
                 guard let data = data,
                       let result = try? JSONSerialization.jsonObject(with: data, options: [])
                         as? [String: AnyHashable] else {
-                            completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "status code: \(response.statusCode)"))
+                            completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "status code: \(httpResponse.statusCode)"))
                           return
                       }
 
@@ -158,13 +158,13 @@ public class ASAAttribution: NSObject {
 
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        URLSession.shared.dataTask(with: request) { optionalData, response, error in
             DispatchQueue.main.async {
                 guard error == nil,
-                      let data = data,
-                      let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []),
-                      let responseJSON = responseJSON as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: data ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
+                      let data = optionalData,
+                      let responseJSON = (try? JSONSerialization.jsonObject(with: data, options: []))
+                        as? [String: AnyHashable] else {
+                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: optionalData ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
                           return
                       }
                 
