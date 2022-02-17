@@ -18,23 +18,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ASAAttribution.sharedInstance.attribute(apiToken: "6a49166d-cd10-43b9-94ed-3423b55172ff") { response, error in
             guard let response = response else {
                 if let error = error {
-                    print("error: " + error.localizedDescription)
+                    self.updateWith(result: "error: " + error.localizedDescription)
                 }
                 return
             }
 
-            print("response status: " + response.status.description())
-            print("response keyword: " + (response.result?.keywordName ?? "unknown"))
+            var result = "response status: " + response.status.description()
+            result += "\n" + "response keyword: " + (response.result?.keywordName ?? "unknown")
             
             if let data = try? JSONSerialization.data(withJSONObject: response.analyticsValues(),
                                                       options: [.prettyPrinted]),
                let formattedString = String(data: data, encoding: .utf8) {
-                print("analytics values: " + formattedString)
+                result += "\n" + "analytics values: " + formattedString
             }
+            
+            self.updateWith(result: result)
         }
 
         return true
     }
 
+    private func updateWith(result: String) {
+        print(result)
+        let label = (self.window?.rootViewController as? ViewController)?.label
+        label?.textAlignment = .left
+        label?.text = result
+    }
 }
 
