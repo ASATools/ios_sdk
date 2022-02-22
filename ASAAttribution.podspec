@@ -8,17 +8,17 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASAAttribution'
-  s.version          = '1.1.0'
+  s.version          = '1.1.1'
   s.summary          = 'iOS library for detecting apple search ads install keyword and other info'
 
   s.description      = <<-DESC
 This library is a part of a SAAS. Please check out asaattribution.com for futher details.
 DESC
 
-  s.homepage         = 'https://github.com/vdugnist/asaattribution_lib'
+  s.homepage         = 'https://github.com/vdugnist/asatools_lib'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'vdugnist' => 'vdugnist@gmail.com' }
-  s.source           = { :git => 'https://github.com/vdugnist/asaattribution_lib', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/vdugnist/asatools_lib', :tag => s.version.to_s }
   s.swift_version    = '5.0'
 
   s.ios.deployment_target = '9.0'
