@@ -1,16 +1,16 @@
 PODS:
-  - ASAAttribution (1.0.1)
+  - ASATools (1.2.0)
 
 DEPENDENCIES:
-  - ASAAttribution (from `../`)
+  - ASATools (from `../`)
 
 EXTERNAL SOURCES:
-  ASAAttribution:
+  ASATools:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ASAAttribution: b4beb03d5b17fbad70c3e60707086dd96363c6a1
+  ASATools: 4a2ef7caa2b98c3be33a4c2bab19bde9106b0434
 
-PODFILE CHECKSUM: 7bcf316157c1b8a772fba134e9709aff03275aa5
+PODFILE CHECKSUM: d7972a6073ef55d6eefbb2d7b3841615f1494e61
 
 COCOAPODS: 1.11.2

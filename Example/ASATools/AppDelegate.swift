@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import ASAAttribution
+import ASATools
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

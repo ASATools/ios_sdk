@@ -1,5 +1,5 @@
 import XCTest
-import ASAAttribution
+import ASATools
 
 class Tests: XCTestCase {
     
