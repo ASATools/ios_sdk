@@ -9,7 +9,7 @@ import Foundation
 import AdServices
 
 public class ASATools: NSObject {
-    @objc public static let sharedInstance = ASATools()
+    @objc public static let instance = ASATools()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"

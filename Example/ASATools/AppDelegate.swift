@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        ASATools.sharedInstance.attribute(apiToken: "6a49166d-cd10-43b9-94ed-3423b55172ff") { response, error in
+        ASATools.instance.attribute(apiToken: "6a49166d-cd10-43b9-94ed-3423b55172ff") { response, error in
             guard let response = response else {
                 if let error = error {
                     self.updateWith(result: "error: " + error.localizedDescription)
