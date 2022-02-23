@@ -9,10 +9,10 @@
 Pod::Spec.new do |s|
   s.name             = 'ASATools'
   s.version          = '1.2.0'
-  s.summary          = 'iOS library for detecting apple search ads install keyword and other info'
+  s.summary          = 'iOS library for apple search ads attribution and companies effectiveness analytics'
 
   s.description      = <<-DESC
-This library is a part of a SAAS. Please check out asaattribution.com for futher details.
+This library is a part of a SAAS. Please check out asa.tools for futher details.
 DESC
 
   s.homepage         = 'https://github.com/vdugnist/asatools_lib'

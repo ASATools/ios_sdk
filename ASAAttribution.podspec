@@ -24,4 +24,6 @@ DESC
   s.ios.deployment_target = '9.0'
   s.source_files = 'ASAAttribution/Classes/**/*'
   s.weak_framework = 'AdServices'
+  s.deprecated = true
+  s.deprecated_in_favor_of = 'ASATools'
 end
