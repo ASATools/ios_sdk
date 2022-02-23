@@ -74,7 +74,7 @@ extension ASATools: SKPaymentTransactionObserver {
         parameters["user_id"] = self.userID
         parameters["application_token"] = apiToken
         
-        var request = URLRequest(url: URL(string: "https://asaattribution.com/api/purchase_event")!)
+        var request = URLRequest(url: URL(string: "https://asa.tools/api/purchase_event")!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-type")
         request.httpBody = try! JSONSerialization.data(withJSONObject: parameters, options: [])

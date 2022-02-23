@@ -146,7 +146,7 @@ public class ASATools: NSObject {
                                            asaResponse: [String: AnyHashable]?,
                                            completion: @escaping (_ response: AttributionResponse?,
                                                                   _ error: Error?) -> ()) {
-        var request = URLRequest(url: URL(string:"https://asaattribution.com/api/attribution")!)
+        var request = URLRequest(url: URL(string:"https://asa.tools/api/attribution")!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
