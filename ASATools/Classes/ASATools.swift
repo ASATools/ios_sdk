@@ -8,8 +8,8 @@
 import Foundation
 import AdServices
 
-public class ASAAttribution: NSObject {
-    @objc public static let sharedInstance = ASAAttribution()
+public class ASATools: NSObject {
+    @objc public static let sharedInstance = ASATools()
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
@@ -26,7 +26,7 @@ public class ASAAttribution: NSObject {
         
         let purchasesMigratedKey = "asaattribution_purchases_migrated"
         if UserDefaults.standard.bool(forKey: purchasesMigratedKey) == false {
-            UserDefaults.standard.removeObject(forKey: ASAAttribution.purchaseEvents)
+            UserDefaults.standard.removeObject(forKey: ASATools.purchaseEvents)
             UserDefaults.standard.set(true, forKey: purchasesMigratedKey)
         }
 
@@ -34,22 +34,22 @@ public class ASAAttribution: NSObject {
     }
 
     @objc public var userID: String = {
-        if let result = UserDefaults.standard.string(forKey: ASAAttribution.userIdDefaultsKey) {
+        if let result = UserDefaults.standard.string(forKey: ASATools.userIdDefaultsKey) {
             return result
         }
         
         let result = UUID().uuidString
-        UserDefaults.standard.set(result, forKey: ASAAttribution.userIdDefaultsKey)
+        UserDefaults.standard.set(result, forKey: ASATools.userIdDefaultsKey)
         return result
     }()
     
     private var installDate: TimeInterval = {
-        if let date = UserDefaults.standard.object(forKey: ASAAttribution.installDateDefaultsKey) as? Date  {
+        if let date = UserDefaults.standard.object(forKey: ASATools.installDateDefaultsKey) as? Date  {
             return date.timeIntervalSince1970
         }
         
         let date = Date()
-        UserDefaults.standard.set(date, forKey: ASAAttribution.installDateDefaultsKey)
+        UserDefaults.standard.set(date, forKey: ASATools.installDateDefaultsKey)
         return date.timeIntervalSince1970
     }()
     
@@ -57,10 +57,10 @@ public class ASAAttribution: NSObject {
     
     private var attributionCompleted: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: ASAAttribution.attributionCompletedDefaultsKey)
+            return UserDefaults.standard.bool(forKey: ASATools.attributionCompletedDefaultsKey)
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: ASAAttribution.attributionCompletedDefaultsKey)
+            UserDefaults.standard.set(newValue, forKey: ASATools.attributionCompletedDefaultsKey)
         }
     }
 
@@ -83,7 +83,7 @@ public class ASAAttribution: NSObject {
                     try attributionToken = AAAttribution.attributionToken()
                 } catch {
                     DispatchQueue.main.async {
-                        completion(nil, ASAAttributionErrorCodes.errorGeneratingAttributionToken.error())
+                        completion(nil, ASAToolsErrorCodes.errorGeneratingAttributionToken.error())
                     }
                     return
                 }
@@ -97,7 +97,7 @@ public class ASAAttribution: NSObject {
                 }
             }
         } else {
-            completion(nil, ASAAttributionErrorCodes.unsupportedIOSVersion.error())
+            completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
         }
     }
     
@@ -110,12 +110,12 @@ public class ASAAttribution: NSObject {
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "error response: \(error.localizedDescription)"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromAppleAttribution.error(message: "error response: \(error.localizedDescription)"))
                     return
                 }
                 
                 guard let httpResponse = response as? HTTPURLResponse else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response))) data: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromAppleAttribution.error(message: "response type: \(String(describing: type(of: response))) data: \(String(data: data ?? Data(), encoding: .utf8) ?? "none")"))
                     return
                 }
 
@@ -131,7 +131,7 @@ public class ASAAttribution: NSObject {
                 guard let data = data,
                       let result = try? JSONSerialization.jsonObject(with: data, options: [])
                         as? [String: AnyHashable] else {
-                            completion(nil, ASAAttributionErrorCodes.errorResponseFromAppleAttribution.error(message: "status code: \(httpResponse.statusCode)"))
+                            completion(nil, ASAToolsErrorCodes.errorResponseFromAppleAttribution.error(message: "status code: \(httpResponse.statusCode)"))
                           return
                       }
 
@@ -164,18 +164,18 @@ public class ASAAttribution: NSObject {
                       let data = optionalData,
                       let responseJSON = (try? JSONSerialization.jsonObject(with: data, options: []))
                         as? [String: AnyHashable] else {
-                          completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: optionalData ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
+                          completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: optionalData ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
                           return
                       }
                 
                 if let status = responseJSON["status"] as? String, status == "debug_token_received" {
                     print("ASAAttribution: everything configured properly, but you've sent a debug token. You can now add\n\n#if DEBUG\n\tASAAttribution.shared.isDebug = true\n#endif\n\nbefore calling attribution to stop receiveing this message.")
-                    completion(nil, ASAAttributionErrorCodes.debugAttributionTokenReceived.error())
+                    completion(nil, ASAToolsErrorCodes.debugAttributionTokenReceived.error())
                     return
                 }
                 
                 guard let status = responseJSON["attribution_status"] as? String else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution status is empty"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution status is empty"))
                     return
                 }
                 
@@ -186,10 +186,10 @@ public class ASAAttribution: NSObject {
                     completion(AttributionResponse(status: .organic, result: nil), nil)
                     return
                 case "error":
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status code is error"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status code is error"))
                     return
                 default:
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status key unsupported: " + status))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status key unsupported: " + status))
                     return
                 }
                 
@@ -202,7 +202,7 @@ public class ASAAttribution: NSObject {
                       let campaignName = responseJSON["campaign_name"] as? String,
                       let adGroupName = responseJSON["ad_group_name"] as? String
                 else {
-                    completion(nil, ASAAttributionErrorCodes.errorResponseFromASAAttribution.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
                           return
                       }
                         

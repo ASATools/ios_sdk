@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension ASAAttribution {
+extension ASATools {
     @objc public class AttributionResponse: NSObject {
         @objc public let status: AttributionStatus
         @objc public let result: AttributionResult?

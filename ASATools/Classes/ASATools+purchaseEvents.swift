@@ -8,7 +8,7 @@
 import Foundation
 import StoreKit
 
-extension ASAAttribution: SKPaymentTransactionObserver {
+extension ASATools: SKPaymentTransactionObserver {
     
     func subscribeToPaymentQueue() {
         SKPaymentQueue.default().add(self)
@@ -44,7 +44,7 @@ extension ASAAttribution: SKPaymentTransactionObserver {
             return
         }
 
-        let purchaseEvent = ASAAttributionPurchaseEvent(purchaseDate: transactionDate,
+        let purchaseEvent = ASAToolsPurchaseEvent(purchaseDate: transactionDate,
                                                         transactionId: transactionId,
                                                         productId: productIdentifier,
                                                         receipt: receiptData.base64EncodedString())
@@ -99,23 +99,23 @@ extension ASAAttribution: SKPaymentTransactionObserver {
         }.resume()
     }
     
-    private func getPurchaseEvents() -> [ASAAttributionPurchaseEvent]? {
-        guard let eventsData = UserDefaults.standard.data(forKey: ASAAttribution.purchaseEvents) else {
+    private func getPurchaseEvents() -> [ASAToolsPurchaseEvent]? {
+        guard let eventsData = UserDefaults.standard.data(forKey: ASATools.purchaseEvents) else {
             return nil
         }
         
-        guard let events = try? JSONDecoder().decode([ASAAttributionPurchaseEvent].self, from: eventsData) else {
+        guard let events = try? JSONDecoder().decode([ASAToolsPurchaseEvent].self, from: eventsData) else {
             return nil
         }
         
         return events
     }
     
-    private func setPurchaseEvents(_ events: [ASAAttributionPurchaseEvent]) {
+    private func setPurchaseEvents(_ events: [ASAToolsPurchaseEvent]) {
         guard let data = try? JSONEncoder().encode(events) else {
             return
         }
         
-        UserDefaults.standard.set(data, forKey: ASAAttribution.purchaseEvents)
+        UserDefaults.standard.set(data, forKey: ASATools.purchaseEvents)
     }
 }

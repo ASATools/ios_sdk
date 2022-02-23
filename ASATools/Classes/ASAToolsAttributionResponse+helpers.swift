@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension ASAAttribution.AttributionResponse {
+extension ASATools.AttributionResponse {
     @objc public func analyticsValues() -> [String: AnyHashable] {
         var values: [String: AnyHashable] = ["asa_attribution_status": self.status.description()]
         

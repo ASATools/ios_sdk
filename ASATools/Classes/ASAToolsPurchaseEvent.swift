@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ASAAttributionPurchaseEvent: Equatable, Codable {
+struct ASAToolsPurchaseEvent: Equatable, Codable {
     let purchaseDate: Date
     let transactionId: String
     let productId: String

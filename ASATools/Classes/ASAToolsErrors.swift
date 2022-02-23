@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ASAAttributionErrorCodes: Int {
+public enum ASAToolsErrorCodes: Int {
     case unsupportedIOSVersion
     case errorGeneratingAttributionToken
     case networkError
@@ -32,7 +32,7 @@ public enum ASAAttributionErrorCodes: Int {
             userInfo[NSLocalizedFailureReasonErrorKey] = message
         }
 
-        return NSError(domain: String(describing: ASAAttribution.self),
+        return NSError(domain: String(describing: ASATools.self),
                        code: self.rawValue,
                        userInfo: userInfo)
     }

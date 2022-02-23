@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension ASAAttribution.AttributionResult {
+extension ASATools.AttributionResult {
     @objc public enum ConversionType: Int {
         case download
         case redownload
