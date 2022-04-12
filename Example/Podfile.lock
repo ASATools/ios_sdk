@@ -1,5 +1,5 @@
 PODS:
-  - ASATools (1.2.0)
+  - ASATools (1.2.1)
 
 DEPENDENCIES:
   - ASATools (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ASATools: 4a2ef7caa2b98c3be33a4c2bab19bde9106b0434
+  ASATools: 1fe65bb123ccf45ba53ee7ad1e6d0ff1d2386b3d
 
 PODFILE CHECKSUM: d7972a6073ef55d6eefbb2d7b3841615f1494e61
 
