@@ -72,6 +72,7 @@ extension ASATools: SKPaymentTransactionObserver {
         
         var parameters = purchase.dictionaryRepresentation()
         parameters["user_id"] = self.userID
+        parameters["lib_version"] = ASATools.libVersion
         parameters["application_token"] = apiToken
         
         var request = URLRequest(url: URL(string: "https://asa.tools/api/purchase_event")!)

@@ -10,6 +10,8 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
+    public static let libVersion = "1.2.2"
+    
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
@@ -152,6 +154,7 @@ public class ASATools: NSObject {
 
         var bodyJSON: [String: AnyHashable] = ["application_token": apiToken,
                                                "attribution_token": attributionToken,
+                                               "lib_version": ASATools.libVersion,
                                                "user_id": self.userID,
                                                "install_date": installDate]
         bodyJSON["asa_attribution_response"] = asaResponse
