@@ -121,7 +121,7 @@ public class ASATools: NSObject {
                     return
                 }
 
-                if httpResponse.statusCode != 200 {
+                if httpResponse.statusCode != 200 && self.appleAttributionRequestsAttempts > 0 {
                     self.appleAttributionRequestsAttempts -= 1
 
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
