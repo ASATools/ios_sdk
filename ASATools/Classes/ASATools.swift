@@ -44,7 +44,34 @@ public class ASATools: NSObject {
         UserDefaults.standard.set(result, forKey: ASATools.userIdDefaultsKey)
         return result
     }()
-    
+
+    @objc private var firstInstallOnDevice: Bool {
+        set {
+            KeychainWrapper.storeBool(newValue, forKey: "first_install_on_device")
+        }
+        get {
+            return KeychainWrapper.boolValueFor(key: "first_install_on_device") ?? true
+        }
+    }
+
+    @objc private var firstInstallOnAccount: Bool {
+        set {
+            KeychainWrapper.storeBool(newValue, forKey: "first_install_on_account", syncInKeychain: true)
+        }
+        get {
+            return KeychainWrapper.boolValueFor(key: "first_install_on_account", syncInKeycnain: true) ?? true
+        }
+    }
+
+    @objc private var initialUserID: String? {
+        set {
+            KeychainWrapper.storeString(self.userID, forKey: "initial_user_id")
+        }
+        get {
+            return KeychainWrapper.stringValueFor(key: "initial_user_id")
+        }
+    }
+
     private var installDate: TimeInterval = {
         if let date = UserDefaults.standard.object(forKey: ASATools.installDateDefaultsKey) as? Date  {
             return date.timeIntervalSince1970
@@ -156,8 +183,11 @@ public class ASATools: NSObject {
                                                "attribution_token": attributionToken,
                                                "lib_version": ASATools.libVersion,
                                                "user_id": self.userID,
+                                               "first_install_on_device": self.firstInstallOnDevice,
+                                               "first_install_on_account": self.firstInstallOnAccount,
                                                "install_date": installDate]
         bodyJSON["asa_attribution_response"] = asaResponse
+        bodyJSON["initial_user_id"] = self.initialUserID
 
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
@@ -186,6 +216,11 @@ public class ASATools: NSObject {
                 case "attributed": break
                 case "organic":
                     self.attributionCompleted = true
+                    self.firstInstallOnDevice = false
+                    self.firstInstallOnAccount = false
+                    if self.initialUserID == nil {
+                        self.initialUserID = self.userID
+                    }
                     completion(AttributionResponse(status: .organic, result: nil), nil)
                     return
                 case "error":
@@ -226,6 +261,11 @@ public class ASATools: NSObject {
                     keywordName: keywordName)
 
                 self.attributionCompleted = true
+                self.firstInstallOnDevice = false
+                self.firstInstallOnAccount = false
+                if self.initialUserID == nil {
+                    self.initialUserID = self.userID
+                }
                 completion(AttributionResponse(status: .attributed, result: attributionResult), nil)
             }
         }.resume()
