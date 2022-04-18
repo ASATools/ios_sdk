@@ -37,8 +37,8 @@ From applicationDidFinishLaunching method call:
 ASATools.instance.attribute(apiToken: "your_token_here") { response, error in
   if let response = response {
     // store response.analyticsValues() in your product analytics
-    Amplitude.instance().logEvent("did_receive_asa_attribution", withEventProperties: response.analyticsValues())
     Amplitude.instance.setUserProperties(response.analyticsValues())
+    Amplitude.instance.logEvent("did_receive_asa_attribution", withEventProperties: response.analyticsValues())
   }
 }
 ```
