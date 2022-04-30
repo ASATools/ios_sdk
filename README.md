@@ -26,11 +26,32 @@ For all response values please check [ASAToolsAttributionResponse](https://githu
 
 ## Installation
 
-Add the following line to your Podfile and run pod install:
+### Cocoapods
+
+Add the following line to your Podfile:
 
 ```ruby
-pod 'ASATools'
+target '<Your Target Name>' do
+  pod 'ASATools', '~> 1.2.0'
+end
 ```
+
+Then, run the following command:
+```bash
+pod install
+```
+
+### Swift Package Manager
+
+To integrate ASATools into your Xcode project using Swift Package Manager, add it to the dependencies value of your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/vdugnist/asatools_lib.git", .upToNextMajor(from: "1.2.0"))
+]
+```
+
+## Integration
 
 From applicationDidFinishLaunching method call:
 ```swift
