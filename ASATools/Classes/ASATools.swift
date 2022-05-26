@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    public static let libVersion = "1.2.2"
+    public static let libVersion = "1.2.3"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -20,6 +20,7 @@ public class ASATools: NSObject {
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
     private let appleAttributionRequestDelay: TimeInterval = 5.0
+    private var libInitialized = false
     var isSyncingPurchases: Bool = false
     var apiToken: String? = nil
     
@@ -95,6 +96,11 @@ public class ASATools: NSObject {
 
     @objc public func attribute(apiToken: String,
                           completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+        if self.libInitialized {
+            return
+        }
+
+        self.libInitialized = true
         self.apiToken = apiToken
         self.syncPurchasedEvents()
 
