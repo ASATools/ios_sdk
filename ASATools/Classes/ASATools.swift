@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    public static let libVersion = "1.2.3"
+    public static let libVersion = "1.2.4"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -20,6 +20,8 @@ public class ASATools: NSObject {
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
     private let appleAttributionRequestDelay: TimeInterval = 5.0
+    private var attributionTokenGenerationRequestsAttempts: Int = 3
+    private let attributionTokenGenerationRequestsDelay: TimeInterval = 3.0
     private var libInitialized = false
     var isSyncingPurchases: Bool = false
     var apiToken: String? = nil
@@ -107,35 +109,48 @@ public class ASATools: NSObject {
         if self.attributionCompleted || self.isDebug {
             return
         }
-        
-        let installDate = self.installDate
 
         if #available(iOS 14.3, *) {
-            DispatchQueue.global().async {
-                let attributionToken: String
-
-                do {
-                    try attributionToken = AAAttribution.attributionToken()
-                } catch {
-                    DispatchQueue.main.async {
-                        completion(nil, ASAToolsErrorCodes.errorGeneratingAttributionToken.error())
-                    }
-                    return
-                }
-
-                self.attributeASAToken(attributionToken) { response, error in
-                    self.attributeASATokenResponse(attributionToken: attributionToken,
-                                                   apiToken: apiToken,
-                                                   installDate: installDate,
-                                                   asaResponse: response,
-                                                   completion: completion)
-                }
-            }
+            self.attributeWith(apiToken: apiToken, completion: completion)
         } else {
+            self.attributionCompleted = true
             completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
         }
     }
-    
+
+    @available(iOS 14.3, *)
+    private func attributeWith(apiToken: String,
+                               completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+        DispatchQueue.global().async {
+            let attributionToken: String
+            let installDate = self.installDate
+
+            do {
+                try attributionToken = AAAttribution.attributionToken()
+            } catch {
+                DispatchQueue.main.async {
+                    if self.attributionTokenGenerationRequestsAttempts > 0 {
+                        self.attributionTokenGenerationRequestsAttempts -= 1
+                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.attributionTokenGenerationRequestsDelay) {
+                            self.attributeWith(apiToken: apiToken, completion: completion)
+                        }
+                    } else {
+                        completion(nil, ASAToolsErrorCodes.errorGeneratingAttributionToken.error())
+                    }
+                }
+                return
+            }
+
+            self.attributeASAToken(attributionToken) { response, error in
+                self.attributeASATokenResponse(attributionToken: attributionToken,
+                                               apiToken: apiToken,
+                                               installDate: installDate,
+                                               asaResponse: response,
+                                               completion: completion)
+            }
+        }
+    }
+
     private func attributeASAToken(_ token: String,
                         completion: @escaping (_ response: [String: AnyHashable]?, _ error: Error?) -> ()) {
         var request = URLRequest(url: URL(string:"https://api-adservices.apple.com/api/v1/")!)
@@ -156,7 +171,6 @@ public class ASATools: NSObject {
 
                 if httpResponse.statusCode != 200 && self.appleAttributionRequestsAttempts > 0 {
                     self.appleAttributionRequestsAttempts -= 1
-
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
                         self.attributeASAToken(token, completion: completion)
                     }
@@ -203,21 +217,21 @@ public class ASATools: NSObject {
                       let data = optionalData,
                       let responseJSON = (try? JSONSerialization.jsonObject(with: data, options: []))
                         as? [String: AnyHashable] else {
-                          completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "response is empty or not a json: \(String(data: optionalData ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
+                          completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "response is empty or not a json: \(String(data: optionalData ?? Data(), encoding: .utf8) ?? "none") statusCode: \((response as? HTTPURLResponse)?.statusCode ?? 0)"))
                           return
                       }
-                
-                if let status = responseJSON["status"] as? String, status == "debug_token_received" {
-                    print("ASAAttribution: everything configured properly, but you've sent a debug token. You can now add\n\n#if DEBUG\n\tASAAttribution.shared.isDebug = true\n#endif\n\nbefore calling attribution to stop receiveing this message.")
-                    completion(nil, ASAToolsErrorCodes.debugAttributionTokenReceived.error())
-                    return
+
+                guard let responseStatus = responseJSON["status"] as? String,
+                        responseStatus == "ok" else {
+                            completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "ASATools error response: " + (responseJSON["error_message"] as? String ?? "")))
+                            return
                 }
                 
                 guard let status = responseJSON["attribution_status"] as? String else {
-                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution status is empty"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "attribution status is empty"))
                     return
                 }
-                
+
                 switch status {
                 case "attributed": break
                 case "organic":
@@ -230,10 +244,10 @@ public class ASATools: NSObject {
                     completion(AttributionResponse(status: .organic, result: nil), nil)
                     return
                 case "error":
-                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status code is error"))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "attribution_status code is error"))
                     return
                 default:
-                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "attribution_status key unsupported: " + status))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "attribution_status key unsupported: " + status))
                     return
                 }
                 
@@ -246,7 +260,7 @@ public class ASATools: NSObject {
                       let campaignName = responseJSON["campaign_name"] as? String,
                       let adGroupName = responseJSON["ad_group_name"] as? String
                 else {
-                    completion(nil, ASAToolsErrorCodes.errorResponseFromASAAttribution.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
+                    completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
                           return
                       }
                         
