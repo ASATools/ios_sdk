@@ -16,6 +16,7 @@ public class ASATools: NSObject {
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
     static let purchaseEvents = "asa_attribution_purchase_events"
+    static let retentionRate = "asa_attribution_retention_rate"
     
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
@@ -75,7 +76,7 @@ public class ASATools: NSObject {
         }
     }
 
-    private var installDate: TimeInterval = {
+    var installDate: TimeInterval = {
         if let date = UserDefaults.standard.object(forKey: ASATools.installDateDefaultsKey) as? Date  {
             return date.timeIntervalSince1970
         }
@@ -84,9 +85,7 @@ public class ASATools: NSObject {
         UserDefaults.standard.set(date, forKey: ASATools.installDateDefaultsKey)
         return date.timeIntervalSince1970
     }()
-    
-    public var isDebug: Bool = false
-    
+        
     private var attributionCompleted: Bool {
         get {
             return UserDefaults.standard.bool(forKey: ASATools.attributionCompletedDefaultsKey)
@@ -104,14 +103,21 @@ public class ASATools: NSObject {
 
         self.libInitialized = true
         self.apiToken = apiToken
-        self.syncPurchasedEvents()
 
-        if self.attributionCompleted || self.isDebug {
+        if self.attributionCompleted {
+            self.syncRetentionRate()
+            self.syncPurchasedEvents()
             return
         }
 
         if #available(iOS 14.3, *) {
-            self.attributeWith(apiToken: apiToken, completion: completion)
+            self.attributeWith(apiToken: apiToken) { response, error in
+                if response != nil {
+                    self.syncRetentionRate()
+                    self.syncPurchasedEvents()
+                }
+                completion(response, error)
+            }
         } else {
             self.attributionCompleted = true
             completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
