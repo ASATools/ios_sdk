@@ -32,7 +32,7 @@ Add the following line to your Podfile:
 
 ```ruby
 target '<Your Target Name>' do
-  pod 'ASATools', '~> 1.2.0'
+  pod 'ASATools', '~> 1.3.0'
 end
 ```
 
@@ -47,7 +47,7 @@ To integrate ASATools into your Xcode project using Swift Package Manager, add i
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/vdugnist/asatools_lib.git", .upToNextMajor(from: "1.2.0"))
+    .package(url: "https://github.com/vdugnist/asatools_lib.git", .upToNextMajor(from: "1.3.0"))
 ]
 ```
 
