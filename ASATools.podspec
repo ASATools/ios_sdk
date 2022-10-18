@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASATools'
-  s.version          = '1.3.0'
+  s.version          = '1.3.1'
   s.summary          = 'iOS library for apple search ads attribution and companies effectiveness analytics'
 
   s.description      = <<-DESC
@@ -18,7 +18,7 @@ DESC
   s.homepage         = 'https://github.com/vdugnist/asatools_lib'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'vdugnist' => 'vdugnist@gmail.com' }
-  s.source           = { :git => 'https://github.com/vdugnist/asatools_lib', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/ASATools/ios_sdk', :tag => s.version.to_s }
   s.swift_version    = '5.0'
 
   s.ios.deployment_target = '9.0'

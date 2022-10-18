@@ -47,7 +47,7 @@ To integrate ASATools into your Xcode project using Swift Package Manager, add i
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/vdugnist/asatools_lib.git", .upToNextMajor(from: "1.3.0"))
+    .package(url: "https://github.com/ASATools/ios_sdk.git", .upToNextMajor(from: "1.3.1"))
 ]
 ```
 
