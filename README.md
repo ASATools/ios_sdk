@@ -32,7 +32,7 @@ Add the following line to your Podfile:
 
 ```ruby
 target '<Your Target Name>' do
-  pod 'ASATools', '~> 1.3.0'
+  pod 'ASATools', '~> 1.3.1'
 end
 ```
 
