@@ -63,7 +63,9 @@ ASATools.instance.attribute(apiToken: "your_token_here") { response, error in
 }
 ```
 
-Note, that completion block will only be called **once** if there is a success response. To get your API token please visit [asa.tools](https://asa.tools).
+Note, that completion block will only be called **once** if there is a success response. To get your API token please visit [ASATools dashboard](https://asa.tools/client/settings).
+
+![API Key location](http://asa.tools/images/sdk_integration/sdk_api_key.png)
 
 ## Author
 
