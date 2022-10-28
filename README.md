@@ -20,9 +20,8 @@ Output:
 For all response values please check [ASAToolsAttributionResponse](https://github.com/vdugnist/asatools_lib/blob/main/ASATools/Classes/ASAToolsAttributionResponse.swift) class.
 
 
-[![Version](https://img.shields.io/cocoapods/v/ASAAttribution.svg?style=flat)](https://cocoapods.org/pods/ASAAttribution)
-[![License](https://img.shields.io/cocoapods/l/ASAAttribution.svg?style=flat)](https://cocoapods.org/pods/ASAAttribution)
-[![Platform](https://img.shields.io/cocoapods/p/ASAAttribution.svg?style=flat)](https://cocoapods.org/pods/ASAAttribution)
+[![Version](https://img.shields.io/cocoapods/v/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools)
+[![License](https://img.shields.io/cocoapods/l/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools)
 
 ## Installation
 
