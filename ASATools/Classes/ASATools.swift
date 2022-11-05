@@ -97,6 +97,14 @@ public class ASATools: NSObject {
 
     @objc public func attribute(apiToken: String,
                           completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+        if apiToken.count != 36 {
+            #if DEBUG
+            fatalError("Please provide API key from ASATools dashboard settings")
+            #else
+            return
+            #endif
+        }
+
         if self.libInitialized {
             return
         }
