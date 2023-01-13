@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    public static let libVersion = "1.2.4"
+    public static let libVersion = "1.4.0"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -26,11 +26,12 @@ public class ASATools: NSObject {
     private var libInitialized = false
     var isSyncingPurchases: Bool = false
     var apiToken: String? = nil
+    var storeKit2ListenerTask: Any? = nil
     
     public override init() {
         super.init()
         
-        let purchasesMigratedKey = "asaattribution_purchases_migrated"
+        let purchasesMigratedKey = "asaattribution_purchases_migrated_1.4.0"
         if UserDefaults.standard.bool(forKey: purchasesMigratedKey) == false {
             UserDefaults.standard.removeObject(forKey: ASATools.purchaseEvents)
             UserDefaults.standard.set(true, forKey: purchasesMigratedKey)

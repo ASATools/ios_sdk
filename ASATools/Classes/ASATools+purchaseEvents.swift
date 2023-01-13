@@ -9,11 +9,52 @@ import Foundation
 import StoreKit
 
 extension ASATools: SKPaymentTransactionObserver {
-    
+
     func subscribeToPaymentQueue() {
         SKPaymentQueue.default().add(self)
+
+        if #available(iOS 15, *) {
+            self.storeKit2ListenerTask = Task.detached {
+                for await veritificationResult in Transaction.updates {
+                    self.handleStoreKit2Result(verificationResult: veritificationResult)
+                }
+            }
+        }
     }
-    
+
+    @available(iOS 15, *)
+    private func handleStoreKit2Result(verificationResult: VerificationResult<Transaction>) {
+        switch verificationResult {
+        case let .verified(verifiedTransaction):
+            if verifiedTransaction.ownershipType != .purchased {
+                return
+            }
+
+            if #available(iOS 16, *) {
+                if verifiedTransaction.environment != .production {
+                    return
+                }
+            }
+
+            guard let jsonString = String(data: verifiedTransaction.jsonRepresentation,
+                                          encoding: .utf8) else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.savePurchasedTransactionWith(
+                    transactionId: String(verifiedTransaction.originalID),
+                    productIdentifier: verifiedTransaction.productID,
+                    transactionDate: verifiedTransaction.originalPurchaseDate,
+                    receiptData: nil,
+                    storeKit2Receipt: jsonString
+                )
+                self.syncPurchasedEvents()
+            }
+        default: break
+        }
+    }
+
     public func paymentQueue(_ queue: SKPaymentQueue,
                              updatedTransactions transactions: [SKPaymentTransaction]) {
         DispatchQueue.main.async {
@@ -24,19 +65,25 @@ extension ASATools: SKPaymentTransactionObserver {
                       let transactionDate = transaction.transactionDate else {
                     return
                 }
+                guard let receiptURL = Bundle.main.appStoreReceiptURL,
+                      let receiptData = try? Data(contentsOf: receiptURL) else {
+                          return
+                      }
                 self.savePurchasedTransactionWith(transactionId: transactionId,
                                                   productIdentifier: transaction.payment.productIdentifier,
-                                                  transactionDate: transactionDate)
+                                                  transactionDate: transactionDate,
+                                                  receiptData: receiptData,
+                                                  storeKit2Receipt: nil)
                 self.syncPurchasedEvents()
             }
         }
     }
-    
-    private func savePurchasedTransactionWith(transactionId: String, productIdentifier: String, transactionDate: Date) {
-        guard let receiptURL = Bundle.main.appStoreReceiptURL,
-              let receiptData = try? Data(contentsOf: receiptURL) else {
-                  return
-              }
+
+    private func savePurchasedTransactionWith(transactionId: String,
+                                              productIdentifier: String,
+                                              transactionDate: Date,
+                                              receiptData: Data?,
+                                              storeKit2Receipt: String?) {
         var events = self.getPurchaseEvents() ?? []
         guard !events.contains(where: { event in
             return event.transactionId == transactionId
@@ -45,9 +92,10 @@ extension ASATools: SKPaymentTransactionObserver {
         }
 
         let purchaseEvent = ASAToolsPurchaseEvent(purchaseDate: transactionDate,
-                                                        transactionId: transactionId,
-                                                        productId: productIdentifier,
-                                                        receipt: receiptData.base64EncodedString())
+                                                  transactionId: transactionId,
+                                                  productId: productIdentifier,
+                                                  storeKit1Receipt: receiptData?.base64EncodedString(),
+                                                  storeKit2JSON: storeKit2Receipt)
         events.append(purchaseEvent)
         self.setPurchaseEvents(events)
     }

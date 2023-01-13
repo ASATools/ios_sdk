@@ -11,14 +11,19 @@ struct ASAToolsPurchaseEvent: Equatable, Codable {
     let purchaseDate: Date
     let transactionId: String
     let productId: String
-    let receipt: String
+    let storeKit1Receipt: String?
+    let storeKit2JSON: String?
     var synced: Bool = false
     
     func dictionaryRepresentation() -> [String: AnyHashable] {
-        return [
+        var result: Dictionary<String, AnyHashable> = [
             "transaction_date": self.purchaseDate.timeIntervalSince1970,
-            "product_id": self.productId,
-            "product_receipt": self.receipt
+            "product_id": self.productId
         ]
+
+        result["product_receipt"] = self.storeKit1Receipt
+        result["store_kit_2_json"] = self.storeKit2JSON
+
+        return result
     }
 }

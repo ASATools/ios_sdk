@@ -8,14 +8,14 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASATools'
-  s.version          = '1.3.2'
+  s.version          = '1.4.0'
   s.summary          = 'iOS library for apple search ads attribution and companies effectiveness analytics'
 
   s.description      = <<-DESC
 This library is a part of a SAAS. Please check out asa.tools for futher details.
 DESC
 
-  s.homepage         = 'https://github.com/vdugnist/asatools_lib'
+  s.homepage         = 'https://github.com/ASATools/ios_sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'vdugnist' => 'vdugnist@gmail.com' }
   s.source           = { :git => 'https://github.com/ASATools/ios_sdk', :tag => s.version.to_s }
