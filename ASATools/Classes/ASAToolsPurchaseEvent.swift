@@ -13,6 +13,7 @@ struct ASAToolsPurchaseEvent: Equatable, Codable {
     let productId: String
     let storeKit1Receipt: String?
     let storeKit2JSON: String?
+    let countryCode: String?
     var synced: Bool = false
     
     func dictionaryRepresentation() -> [String: AnyHashable] {
@@ -23,6 +24,7 @@ struct ASAToolsPurchaseEvent: Equatable, Codable {
 
         result["product_receipt"] = self.storeKit1Receipt
         result["store_kit_2_json"] = self.storeKit2JSON
+        result["country_code"] = self.countryCode
 
         return result
     }

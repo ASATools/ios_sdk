@@ -41,11 +41,14 @@ extension ASATools: SKPaymentTransactionObserver {
                 return
             }
 
+            let countryCode: String? = SKPaymentQueue.default().storefront?.countryCode
+
             DispatchQueue.main.async {
                 self.savePurchasedTransactionWith(
                     transactionId: String(verifiedTransaction.originalID),
                     productIdentifier: verifiedTransaction.productID,
                     transactionDate: verifiedTransaction.originalPurchaseDate,
+                    countryCode: countryCode,
                     receiptData: nil,
                     storeKit2Receipt: jsonString
                 )
@@ -69,9 +72,19 @@ extension ASATools: SKPaymentTransactionObserver {
                       let receiptData = try? Data(contentsOf: receiptURL) else {
                           return
                       }
+                
+                let countryCode: String? = {
+                    if #available(iOS 13, *) {
+                        return queue.storefront?.countryCode
+                    } else {
+                        return nil
+                    }
+                }()
+                
                 self.savePurchasedTransactionWith(transactionId: transactionId,
                                                   productIdentifier: transaction.payment.productIdentifier,
                                                   transactionDate: transactionDate,
+                                                  countryCode: countryCode,
                                                   receiptData: receiptData,
                                                   storeKit2Receipt: nil)
                 self.syncPurchasedEvents()
@@ -82,6 +95,7 @@ extension ASATools: SKPaymentTransactionObserver {
     private func savePurchasedTransactionWith(transactionId: String,
                                               productIdentifier: String,
                                               transactionDate: Date,
+                                              countryCode: String?,
                                               receiptData: Data?,
                                               storeKit2Receipt: String?) {
         var events = self.getPurchaseEvents() ?? []
@@ -95,7 +109,8 @@ extension ASATools: SKPaymentTransactionObserver {
                                                   transactionId: transactionId,
                                                   productId: productIdentifier,
                                                   storeKit1Receipt: receiptData?.base64EncodedString(),
-                                                  storeKit2JSON: storeKit2Receipt)
+                                                  storeKit2JSON: storeKit2Receipt,
+                                                  countryCode: countryCode)
         events.append(purchaseEvent)
         self.setPurchaseEvents(events)
     }
