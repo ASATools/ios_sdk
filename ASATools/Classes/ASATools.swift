@@ -10,13 +10,13 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    public static let libVersion = "1.4.0"
+    internal static let libVersion = "1.4.0"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
-    static let purchaseEvents = "asa_attribution_purchase_events"
-    static let retentionRate = "asa_attribution_retention_rate"
+    internal static let purchaseEvents = "asa_attribution_purchase_events"
+    internal static let retentionRate = "asa_attribution_retention_rate"
     
     // 3 attempts with 5 seconds delay as in documentation for AAAttribution.attributionToken()
     private var appleAttributionRequestsAttempts: Int = 3
@@ -24,9 +24,10 @@ public class ASATools: NSObject {
     private var attributionTokenGenerationRequestsAttempts: Int = 3
     private let attributionTokenGenerationRequestsDelay: TimeInterval = 3.0
     private var libInitialized = false
-    var isSyncingPurchases: Bool = false
-    var apiToken: String? = nil
-    var storeKit2ListenerTask: Any? = nil
+
+    internal var isSyncingPurchases: Bool = false
+    internal var apiToken: String? = nil
+    internal var storeKit2ListenerTask: Any? = nil
     
     public override init() {
         super.init()
@@ -204,7 +205,7 @@ public class ASATools: NSObject {
         }.resume()
     }
     
-    public func attributeASATokenResponse(attributionToken: String,
+    private func attributeASATokenResponse(attributionToken: String,
                                            apiToken: String,
                                            installDate: TimeInterval,
                                            asaResponse: [String: AnyHashable]?,
