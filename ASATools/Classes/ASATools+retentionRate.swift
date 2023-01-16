@@ -27,7 +27,7 @@ extension ASATools {
         request.setValue("application/json", forHTTPHeaderField: "Content-type")
         request.httpBody = try! JSONSerialization.data(withJSONObject: parameters, options: [])
         URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
+            self.queue.async {
                 guard let data = data,
                       let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject],
                       let status = responseJSON["status"] as? String,

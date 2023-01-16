@@ -43,7 +43,7 @@ extension ASATools: SKPaymentTransactionObserver {
 
             let countryCode: String? = SKPaymentQueue.default().storefront?.countryCode
 
-            DispatchQueue.main.async {
+            self.queue.async {
                 self.savePurchasedTransactionWith(
                     transactionId: String(verifiedTransaction.originalID),
                     productIdentifier: verifiedTransaction.productID,
@@ -60,18 +60,21 @@ extension ASATools: SKPaymentTransactionObserver {
 
     public func paymentQueue(_ queue: SKPaymentQueue,
                              updatedTransactions transactions: [SKPaymentTransaction]) {
-        DispatchQueue.main.async {
-            transactions.filter { (tr) -> Bool in
-                return tr.transactionState == .purchased
-            }.forEach { transaction in
+        let purchasedTransactions = transactions.filter { (tr) -> Bool in
+            return tr.transactionState == .purchased
+        }
+
+        self.queue.async {
+            purchasedTransactions.forEach { transaction in
                 guard let transactionId = transaction.transactionIdentifier,
                       let transactionDate = transaction.transactionDate else {
                     return
                 }
+
                 guard let receiptURL = Bundle.main.appStoreReceiptURL,
                       let receiptData = try? Data(contentsOf: receiptURL) else {
-                          return
-                      }
+                    return
+                }
                 
                 let countryCode: String? = {
                     if #available(iOS 13, *) {
@@ -143,7 +146,7 @@ extension ASATools: SKPaymentTransactionObserver {
         request.setValue("application/json", forHTTPHeaderField: "Content-type")
         request.httpBody = try! JSONSerialization.data(withJSONObject: parameters, options: [])
         URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
+            self.queue.async {
                 self.isSyncingPurchases = false
                 
                 guard let data = data,
@@ -174,7 +177,7 @@ extension ASATools: SKPaymentTransactionObserver {
         
         return events
     }
-    
+
     private func setPurchaseEvents(_ events: [ASAToolsPurchaseEvent]) {
         guard let data = try? JSONEncoder().encode(events) else {
             return

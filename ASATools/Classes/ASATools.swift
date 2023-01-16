@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.0"
+    internal static let libVersion = "1.4.1"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -25,6 +25,7 @@ public class ASATools: NSObject {
     private let attributionTokenGenerationRequestsDelay: TimeInterval = 3.0
     private var libInitialized = false
 
+    internal let queue = DispatchQueue(label: "asatools", qos: .utility)
     internal var isSyncingPurchases: Bool = false
     internal var apiToken: String? = nil
     internal var storeKit2ListenerTask: Any? = nil
@@ -107,63 +108,66 @@ public class ASATools: NSObject {
             #endif
         }
 
-        if self.libInitialized {
-            return
-        }
-
-        self.libInitialized = true
-        self.apiToken = apiToken
-
-        if self.attributionCompleted {
-            self.syncRetentionRate()
-            self.syncPurchasedEvents()
-            return
-        }
-
-        if #available(iOS 14.3, *) {
-            self.attributeWith(apiToken: apiToken) { response, error in
-                if response != nil {
-                    self.syncRetentionRate()
-                    self.syncPurchasedEvents()
-                }
-                completion(response, error)
+        self.queue.async {
+            if self.libInitialized {
+                return
             }
-        } else {
-            self.attributionCompleted = true
-            completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
+
+            self.libInitialized = true
+            self.apiToken = apiToken
+
+            if self.attributionCompleted {
+                self.syncPurchasedEvents()
+                self.syncRetentionRate()
+                return
+            }
+
+            if #available(iOS 14.3, *) {
+                self.attributeWith(apiToken: apiToken) { response, error in
+                    if response != nil {
+                        self.syncPurchasedEvents()
+                        self.syncRetentionRate()
+                    }
+                    
+                    DispatchQueue.main.async {
+                        completion(response, error)
+                    }
+                }
+            } else {
+                self.attributionCompleted = true
+                DispatchQueue.main.async {
+                    completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
+                }
+            }
         }
     }
 
     @available(iOS 14.3, *)
     private func attributeWith(apiToken: String,
                                completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
-        DispatchQueue.global().async {
-            let attributionToken: String
-            let installDate = self.installDate
+        let attributionToken: String
+        let installDate = self.installDate
 
-            do {
-                try attributionToken = AAAttribution.attributionToken()
-            } catch {
-                DispatchQueue.main.async {
-                    if self.attributionTokenGenerationRequestsAttempts > 0 {
-                        self.attributionTokenGenerationRequestsAttempts -= 1
-                        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.attributionTokenGenerationRequestsDelay) {
-                            self.attributeWith(apiToken: apiToken, completion: completion)
-                        }
-                    } else {
-                        completion(nil, ASAToolsErrorCodes.errorGeneratingAttributionToken.error())
-                    }
+        do {
+            try attributionToken = AAAttribution.attributionToken()
+        } catch {
+            if self.attributionTokenGenerationRequestsAttempts > 0 {
+                self.attributionTokenGenerationRequestsAttempts -= 1
+                self.queue.asyncAfter(deadline: DispatchTime.now() + self.attributionTokenGenerationRequestsDelay) {
+                    self.attributeWith(apiToken: apiToken, completion: completion)
                 }
-                return
+            } else {
+                completion(nil, ASAToolsErrorCodes.errorGeneratingAttributionToken.error())
             }
+            return
+        }
 
-            self.attributeASAToken(attributionToken) { response, error in
-                self.attributeASATokenResponse(attributionToken: attributionToken,
-                                               apiToken: apiToken,
-                                               installDate: installDate,
-                                               asaResponse: response,
-                                               completion: completion)
-            }
+        self.attributeASAToken(attributionToken) { response, error in
+            self.attributeASATokenResponse(attributionToken: attributionToken,
+                                           apiToken: apiToken,
+                                           installDate: installDate,
+                                           asaResponse: response,
+                                           completion: completion)
         }
     }
 
@@ -174,7 +178,7 @@ public class ASATools: NSObject {
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
         request.httpBody = Data(token.utf8)
         URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
+            self.queue.async {
                 if let error = error {
                     completion(nil, ASAToolsErrorCodes.errorResponseFromAppleAttribution.error(message: "error response: \(error.localizedDescription)"))
                     return
@@ -187,7 +191,7 @@ public class ASATools: NSObject {
 
                 if httpResponse.statusCode != 200 && self.appleAttributionRequestsAttempts > 0 {
                     self.appleAttributionRequestsAttempts -= 1
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
+                    self.queue.asyncAfter(deadline: DispatchTime.now() + self.appleAttributionRequestDelay) {
                         self.attributeASAToken(token, completion: completion)
                     }
                     return
@@ -228,7 +232,7 @@ public class ASATools: NSObject {
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
         URLSession.shared.dataTask(with: request) { optionalData, response, error in
-            DispatchQueue.main.async {
+            self.queue.async {
                 guard error == nil,
                       let data = optionalData,
                       let responseJSON = (try? JSONSerialization.jsonObject(with: data, options: []))
