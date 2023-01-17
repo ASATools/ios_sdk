@@ -157,7 +157,9 @@ extension ASATools: SKPaymentTransactionObserver {
                       }
                 
                 var purchases = self.getPurchaseEvents()!
-                if let index = purchases.firstIndex(of: purchase) {
+                if let index = purchases.firstIndex(where: { arrPurchase in
+                    return arrPurchase.transactionId == purchase.transactionId
+                }) {
                     purchases[index].synced = true
                 }
                 self.setPurchaseEvents(purchases)
