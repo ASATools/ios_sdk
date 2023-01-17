@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.1"
+    internal static let libVersion = "1.4.2"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -29,6 +29,9 @@ public class ASATools: NSObject {
     internal var isSyncingPurchases: Bool = false
     internal var apiToken: String? = nil
     internal var storeKit2ListenerTask: Any? = nil
+    internal lazy var purchasedEvents: [ASAToolsPurchaseEvent] = {
+        return getPurchaseEvents() ?? []
+    }()
     
     public override init() {
         super.init()

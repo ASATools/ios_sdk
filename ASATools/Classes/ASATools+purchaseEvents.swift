@@ -44,6 +44,12 @@ extension ASATools: SKPaymentTransactionObserver {
             let countryCode: String? = SKPaymentQueue.default().storefront?.countryCode
 
             self.queue.async {
+                guard !self.purchasedEvents.contains(where: { event in
+                    return event.transactionId == String(verifiedTransaction.originalID)
+                }) else {
+                    return
+                }
+
                 self.savePurchasedTransactionWith(
                     transactionId: String(verifiedTransaction.originalID),
                     productIdentifier: verifiedTransaction.productID,
@@ -66,8 +72,14 @@ extension ASATools: SKPaymentTransactionObserver {
 
         self.queue.async {
             purchasedTransactions.forEach { transaction in
-                guard let transactionId = transaction.transactionIdentifier,
+                guard let transactionId = transaction.original?.transactionIdentifier ?? transaction.transactionIdentifier,
                       let transactionDate = transaction.transactionDate else {
+                    return
+                }
+
+                if self.purchasedEvents.contains(where: { event in
+                    return event.transactionId == transactionId
+                }) {
                     return
                 }
 
@@ -101,21 +113,14 @@ extension ASATools: SKPaymentTransactionObserver {
                                               countryCode: String?,
                                               receiptData: Data?,
                                               storeKit2Receipt: String?) {
-        var events = self.getPurchaseEvents() ?? []
-        guard !events.contains(where: { event in
-            return event.transactionId == transactionId
-        }) else {
-            return
-        }
-
         let purchaseEvent = ASAToolsPurchaseEvent(purchaseDate: transactionDate,
                                                   transactionId: transactionId,
                                                   productId: productIdentifier,
                                                   storeKit1Receipt: receiptData?.base64EncodedString(),
                                                   storeKit2JSON: storeKit2Receipt,
                                                   countryCode: countryCode)
-        events.append(purchaseEvent)
-        self.setPurchaseEvents(events)
+        self.purchasedEvents.append(purchaseEvent)
+        self.savePurchaseEvents()
     }
     
     func syncPurchasedEvents() {
@@ -127,8 +132,7 @@ extension ASATools: SKPaymentTransactionObserver {
             return
         }
         
-        guard let purchases = self.getPurchaseEvents(),
-              let purchase = purchases.first(where: { event in
+        guard let purchase = self.purchasedEvents.first(where: { event in
                   !event.synced
               }) else {
             return
@@ -156,19 +160,18 @@ extension ASATools: SKPaymentTransactionObserver {
                           return
                       }
                 
-                var purchases = self.getPurchaseEvents()!
-                if let index = purchases.firstIndex(where: { arrPurchase in
+                if let index = self.purchasedEvents.firstIndex(where: { arrPurchase in
                     return arrPurchase.transactionId == purchase.transactionId
                 }) {
-                    purchases[index].synced = true
+                    self.purchasedEvents[index].synced = true
                 }
-                self.setPurchaseEvents(purchases)
+                self.savePurchaseEvents()
                 self.syncPurchasedEvents()
             }
         }.resume()
     }
     
-    private func getPurchaseEvents() -> [ASAToolsPurchaseEvent]? {
+    internal func getPurchaseEvents() -> [ASAToolsPurchaseEvent]? {
         guard let eventsData = UserDefaults.standard.data(forKey: ASATools.purchaseEvents) else {
             return nil
         }
@@ -180,8 +183,8 @@ extension ASATools: SKPaymentTransactionObserver {
         return events
     }
 
-    private func setPurchaseEvents(_ events: [ASAToolsPurchaseEvent]) {
-        guard let data = try? JSONEncoder().encode(events) else {
+    private func savePurchaseEvents() {
+        guard let data = try? JSONEncoder().encode(self.purchasedEvents) else {
             return
         }
         
