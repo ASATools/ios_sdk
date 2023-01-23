@@ -102,7 +102,7 @@ public class ASATools: NSObject {
     }
 
     @objc public func attribute(apiToken: String,
-                          completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
+                          completion: ((_ response: AttributionResponse?, _ error: Error?) -> ())? = nil) {
         if apiToken.count != 36 {
             #if DEBUG
             fatalError("Please provide API key from ASATools dashboard settings")
@@ -133,13 +133,13 @@ public class ASATools: NSObject {
                     }
                     
                     DispatchQueue.main.async {
-                        completion(response, error)
+                        completion?(response, error)
                     }
                 }
             } else {
                 self.attributionCompleted = true
                 DispatchQueue.main.async {
-                    completion(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
+                    completion?(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
                 }
             }
         }
