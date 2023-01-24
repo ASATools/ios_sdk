@@ -142,6 +142,8 @@ extension ASATools: SKPaymentTransactionObserver {
         
         var parameters = purchase.dictionaryRepresentation()
         parameters["user_id"] = self.userID
+        parameters["app_version"] = self.appVersion()
+        parameters["os_version"] = self.osVersion()
         parameters["lib_version"] = ASATools.libVersion
         parameters["application_token"] = apiToken
         

@@ -10,7 +10,7 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.2"
+    internal static let libVersion = "1.4.3"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
@@ -224,14 +224,15 @@ public class ASATools: NSObject {
 
         var bodyJSON: [String: AnyHashable] = ["application_token": apiToken,
                                                "attribution_token": attributionToken,
-                                               "lib_version": ASATools.libVersion,
                                                "user_id": self.userID,
+                                               "lib_version": ASATools.libVersion,
+                                               "os_version": self.osVersion(),
                                                "first_install_on_device": self.firstInstallOnDevice,
                                                "first_install_on_account": self.firstInstallOnAccount,
                                                "install_date": installDate]
+        bodyJSON["app_version"] = self.appVersion()
         bodyJSON["asa_attribution_response"] = asaResponse
         bodyJSON["initial_user_id"] = self.initialUserID
-
         request.httpBody = try? JSONSerialization.data(withJSONObject: bodyJSON, options: [])
         
         URLSession.shared.dataTask(with: request) { optionalData, response, error in
@@ -312,5 +313,13 @@ public class ASATools: NSObject {
                 completion(AttributionResponse(status: .attributed, result: attributionResult), nil)
             }
         }.resume()
+    }
+    
+    internal func osVersion() -> String {
+        return "\(UIDevice.current.systemName)_\(UIDevice.current.systemVersion)"
+    }
+    
+    internal func appVersion() -> String? {
+        return (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)
     }
 }
