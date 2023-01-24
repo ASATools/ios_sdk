@@ -1,29 +1,14 @@
 # ASATools
 
-Library that allows you to get information about apple search ads install campaign, ad group, keyword and other info. Here is how it looks:
-```swift
-ASATools.instance.attribute(apiToken: "your_token_here") { response, error in
-  print(response?.analyticsValues())
-}
-```
+This library is part of the service [ASATools](https://asa.tools)
 
-Output:
-```javascript
-{
-  "asa_campaign_name": "MyAppName US",
-  "asa_ad_group_name": "Branded Keywords",
-  "asa_keyword_name": "my app name",
-  "asa_store_country": "US"
-}
-```
-
-For all response values please check [ASAToolsAttributionResponse](https://github.com/vdugnist/asatools_lib/blob/main/ASATools/Classes/ASAToolsAttributionResponse.swift) class.
-
-
-[![Version](https://img.shields.io/cocoapods/v/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools)
-[![License](https://img.shields.io/cocoapods/l/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools)
+[![Version](https://img.shields.io/cocoapods/v/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools) [![License](https://img.shields.io/cocoapods/l/ASATools.svg?style=flat)](https://cocoapods.org/pods/ASATools)
 
 ## Installation
+
+You can integrate ASATools using Cocoapods or Swift PM.
+
+---
 
 ### Cocoapods
 
@@ -52,20 +37,34 @@ dependencies: [
 
 ## Integration
 
+Open AppDelegate and at the top of the file add
+```swift
+import ASATools
+```
+
 From applicationDidFinishLaunching method call:
+```swift
+ASATools.instance.attribute(apiToken: "your_token_here")
+```
+To get your API token please visit [ASATools dashboard](https://asa.tools/client/settings).
+
+![API Key location](http://asa.tools/images/sdk_integration/sdk_api_key.png)
+
+## Handle attribution data (optional)
+
+If you want store attribution data or pass it to your product analytics, you can use AttributionResponse from completion block. 
+
 ```swift
 ASATools.instance.attribute(apiToken: "your_token_here") { response, error in
   if let response = response {
-    // store response.analyticsValues() in your product analytics
+    // pass response.analyticsValues() to your product analytics
     Amplitude.instance.setUserProperties(response.analyticsValues())
     Amplitude.instance.logEvent("did_receive_asa_attribution", withEventProperties: response.analyticsValues())
   }
 }
 ```
 
-Note, that completion block will only be called **once** if there is a success response. To get your API token please visit [ASATools dashboard](https://asa.tools/client/settings).
-
-![API Key location](http://asa.tools/images/sdk_integration/sdk_api_key.png)
+Note, that completion block will only be called **once** if there is a success response.
 
 ## Author
 
