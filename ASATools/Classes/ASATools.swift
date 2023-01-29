@@ -5,12 +5,12 @@
 //  Created by Vladislav Dugnist on 16.11.2021.
 //
 
-import Foundation
+import UIKit
 import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.3"
+    internal static let libVersion = "1.4.4"
     
     private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
