@@ -14,7 +14,10 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        if let result = UserDefaults.standard.string(forKey: AppDelegate.defaultsKey) {
+            self.display(text: "cached: " + result)
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -22,5 +25,9 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    func display(text: String) {
+        self.label.textAlignment = .left
+        self.label.text = text
+    }
 }
 

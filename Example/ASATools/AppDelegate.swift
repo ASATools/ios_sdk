@@ -12,9 +12,11 @@ import ASATools
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
+    
+    public static let defaultsKey = "asatools_example_response"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-
+        
         ASATools.instance.attribute(apiToken: "6a49166d-cd10-43b9-94ed-3423b55172ff") { response, error in
             guard let response = response else {
                 if let error = error {
@@ -39,10 +41,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func updateWith(result: String) {
-        print(result)
-        let label = (self.window?.rootViewController as? ViewController)?.label
-        label?.textAlignment = .left
-        label?.text = result
+        (self.window?.rootViewController as? ViewController)?.display(text: result)
+        UserDefaults.standard.set(result, forKey: AppDelegate.defaultsKey)
     }
 }
 

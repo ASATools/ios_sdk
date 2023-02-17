@@ -10,11 +10,12 @@ import AdServices
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.4"
+    internal static let libVersion = "1.4.5"
     
-    private static let userIdDefaultsKey = "asa_attribution_user_id"
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
+    internal static let userIdDefaultsKey = "asa_attribution_user_id"
+    internal static let newUserIdDefaultsKey = "asa_attribution_new_user_id"
     internal static let purchaseEvents = "asa_attribution_purchase_events"
     internal static let retentionRate = "asa_attribution_retention_rate"
     
@@ -23,10 +24,11 @@ public class ASATools: NSObject {
     private let appleAttributionRequestDelay: TimeInterval = 5.0
     private var attributionTokenGenerationRequestsAttempts: Int = 3
     private let attributionTokenGenerationRequestsDelay: TimeInterval = 3.0
-    private var libInitialized = false
+    internal var libInitialized = false
 
     internal let queue = DispatchQueue(label: "asatools", qos: .utility)
     internal var isSyncingPurchases: Bool = false
+    internal var isSyncingUserId: Bool = false
     internal var apiToken: String? = nil
     internal var storeKit2ListenerTask: Any? = nil
     internal lazy var purchasedEvents: [ASAToolsPurchaseEvent] = {
@@ -45,15 +47,31 @@ public class ASATools: NSObject {
         self.subscribeToPaymentQueue()
     }
 
-    @objc public var userID: String = {
-        if let result = UserDefaults.standard.string(forKey: ASATools.userIdDefaultsKey) {
+    @objc public var userID: String {
+        get {
+            if let result = UserDefaults.standard.string(forKey: ASATools.userIdDefaultsKey) {
+                return result
+            }
+            
+            let result = UUID().uuidString
+            UserDefaults.standard.set(result, forKey: ASATools.userIdDefaultsKey)
             return result
         }
-        
-        let result = UUID().uuidString
-        UserDefaults.standard.set(result, forKey: ASATools.userIdDefaultsKey)
-        return result
-    }()
+        set {
+            if newValue == self.userID {
+                return
+            }
+
+            if !self.libInitialized {
+                UserDefaults.standard.set(newValue, forKey: ASATools.userIdDefaultsKey)
+            } else {
+                UserDefaults.standard.set(newValue, forKey: ASATools.newUserIdDefaultsKey)
+                self.queue.async {
+                    _ = self.syncNewUserIdIfNeeded(completion: nil)
+                }
+            }
+        }
+    }
 
     @objc private var firstInstallOnDevice: Bool {
         set {
@@ -92,7 +110,7 @@ public class ASATools: NSObject {
         return date.timeIntervalSince1970
     }()
         
-    private var attributionCompleted: Bool {
+    internal var attributionCompleted: Bool {
         get {
             return UserDefaults.standard.bool(forKey: ASATools.attributionCompletedDefaultsKey)
         }
@@ -118,10 +136,18 @@ public class ASATools: NSObject {
 
             self.libInitialized = true
             self.apiToken = apiToken
+            
+            if self.syncNewUserIdIfNeeded(completion: { completed in
+                self.attribute(apiToken: apiToken, completion: completion)
+            }) {
+                return
+            }
 
             if self.attributionCompleted {
                 self.syncPurchasedEvents()
-                self.syncRetentionRate()
+                #if DEBUG
+                print("ASATools: loading stored attribution")
+                #endif
                 return
             }
 
@@ -129,16 +155,21 @@ public class ASATools: NSObject {
                 self.attributeWith(apiToken: apiToken) { response, error in
                     if response != nil {
                         self.syncPurchasedEvents()
-                        self.syncRetentionRate()
                     }
                     
                     DispatchQueue.main.async {
+                        #if DEBUG
+                        print("ASATools: attribution " + ((error == nil) ? "successful" : "error: \(String(describing: error?.localizedDescription)))"))
+                        #endif
                         completion?(response, error)
                     }
                 }
             } else {
                 self.attributionCompleted = true
                 DispatchQueue.main.async {
+                    #if DEBUG
+                    print("ASATools: attribution available only for iOS 14.3+")
+                    #endif
                     completion?(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
                 }
             }

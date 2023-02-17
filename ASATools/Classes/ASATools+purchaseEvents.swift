@@ -131,7 +131,13 @@ extension ASATools: SKPaymentTransactionObserver {
         guard let apiToken = self.apiToken else {
             return
         }
-        
+
+        if self.syncNewUserIdIfNeeded(completion: { synced in
+            self.syncPurchasedEvents()
+        }) {
+            return
+        }
+
         guard let purchase = self.purchasedEvents.first(where: { event in
                   !event.synced
               }) else {
