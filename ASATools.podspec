@@ -22,6 +22,7 @@ DESC
   s.swift_version    = '5.0'
 
   s.ios.deployment_target = '9.0'
+  s.macos.deployment_target = '10.14'
   s.source_files = 'ASATools/Classes/**/*'
   s.weak_framework = 'AdServices'
 end

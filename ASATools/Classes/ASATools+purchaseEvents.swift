@@ -13,7 +13,7 @@ extension ASATools: SKPaymentTransactionObserver {
     func subscribeToPaymentQueue() {
         SKPaymentQueue.default().add(self)
 
-        if #available(iOS 15, *) {
+        if #available(iOS 15, macOS 12, *) {
             self.storeKit2ListenerTask = Task.detached {
                 for await veritificationResult in Transaction.updates {
                     self.handleStoreKit2Result(verificationResult: veritificationResult)
@@ -22,7 +22,7 @@ extension ASATools: SKPaymentTransactionObserver {
         }
     }
 
-    @available(iOS 15, *)
+    @available(iOS 15, macOS 12.0, *)
     private func handleStoreKit2Result(verificationResult: VerificationResult<Transaction>) {
         switch verificationResult {
         case let .verified(verifiedTransaction):
@@ -30,7 +30,7 @@ extension ASATools: SKPaymentTransactionObserver {
                 return
             }
 
-            if #available(iOS 16, *) {
+            if #available(iOS 16, macOS 13, *) {
                 if verifiedTransaction.environment != .production {
                     return
                 }

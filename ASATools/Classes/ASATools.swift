@@ -5,8 +5,11 @@
 //  Created by Vladislav Dugnist on 16.11.2021.
 //
 
-import UIKit
 import AdServices
+
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
@@ -151,7 +154,7 @@ public class ASATools: NSObject {
                 return
             }
 
-            if #available(iOS 14.3, *) {
+            if #available(iOS 14.3, macOS 11.1, *) {
                 self.attributeWith(apiToken: apiToken) { response, error in
                     if response != nil {
                         self.syncPurchasedEvents()
@@ -168,7 +171,7 @@ public class ASATools: NSObject {
                 self.attributionCompleted = true
                 DispatchQueue.main.async {
                     #if DEBUG
-                    print("ASATools: attribution available only for iOS 14.3+")
+                    print("ASATools: attribution available only for iOS 14.3+ and macOS 11.1+")
                     #endif
                     completion?(nil, ASAToolsErrorCodes.unsupportedIOSVersion.error())
                 }
@@ -176,7 +179,7 @@ public class ASATools: NSObject {
         }
     }
 
-    @available(iOS 14.3, *)
+    @available(iOS 14.3, macOS 11.1, *)
     private func attributeWith(apiToken: String,
                                completion: @escaping (_ response: AttributionResponse?, _ error: Error?) -> ()) {
         let attributionToken: String
@@ -347,7 +350,17 @@ public class ASATools: NSObject {
     }
     
     internal func osVersion() -> String {
-        return "\(UIDevice.current.systemName)_\(UIDevice.current.systemVersion)"
+        #if canImport(UIKit)
+        let systemName = UIDevice.current.systemName
+        #elseif os(macOS)
+        let systemName = "macOS"
+        #else
+        #error("Unsupported platform")
+        #endif
+
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+
+        return "\(systemName)_\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
     
     internal func appVersion() -> String? {
