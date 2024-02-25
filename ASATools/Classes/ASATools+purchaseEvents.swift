@@ -89,7 +89,7 @@ extension ASATools: SKPaymentTransactionObserver {
                 }
                 
                 let countryCode: String? = {
-                    if #available(iOS 13, *) {
+                    if #available(iOS 13, macOS 10.15, *) {
                         return queue.storefront?.countryCode
                     } else {
                         return nil

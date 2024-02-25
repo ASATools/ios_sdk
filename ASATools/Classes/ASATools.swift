@@ -13,7 +13,7 @@ import UIKit
 
 public class ASATools: NSObject {
     @objc public static let instance = ASATools()
-    internal static let libVersion = "1.4.5"
+    internal static let libVersion = "1.4.6"
     
     private static let attributionCompletedDefaultsKey = "asa_attribution_completed"
     private static let installDateDefaultsKey = "asa_attribution_install_date"
