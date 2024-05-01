@@ -7,6 +7,6 @@ let package = Package(
         .iOS(.v9)
     ],
     products: [.library(name: "ASATools", targets: ["ASATools"])],
-    targets: [.target(name: "ASATools", path: "ASATools")],
+    targets: [.target(name: "ASATools", path: "ASATools", resources: [.copy("../ASATools/PrivacyInfo.xcprivacy")])],
     swiftLanguageVersions: [.v5]
 )

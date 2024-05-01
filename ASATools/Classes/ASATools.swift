@@ -359,7 +359,6 @@ public class ASATools: NSObject {
         #endif
 
         let version = ProcessInfo.processInfo.operatingSystemVersion
-
         return "\(systemName)_\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
     

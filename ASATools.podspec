@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'ASATools'
-  s.version          = '1.4.6'
+  s.version          = '1.4.7'
   s.summary          = 'iOS library for apple search ads attribution and companies effectiveness analytics'
 
   s.description      = <<-DESC
@@ -24,5 +24,6 @@ DESC
   s.ios.deployment_target = '9.0'
   s.macos.deployment_target = '10.14'
   s.source_files = 'ASATools/Classes/**/*'
+  s.resource_bundles = {'ASATools' => ['ASATools/PrivacyInfo.xcprivacy']}
   s.weak_framework = 'AdServices'
 end
