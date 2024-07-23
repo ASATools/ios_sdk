@@ -281,8 +281,12 @@ public class ASATools: NSObject {
 
                 guard let responseStatus = responseJSON["status"] as? String,
                         responseStatus == "ok" else {
-                            completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "ASATools error response: " + (responseJSON["error_message"] as? String ?? "")))
-                            return
+                    if (responseJSON["status"] as? String) == "apple_attribution_error" {
+                        completion(nil, ASAToolsErrorCodes.errorResponseFromAppleAttribution.error(message: (responseJSON["error_message"] as? String ?? "")))
+                    } else {
+                        completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "ASATools error response: " + (responseJSON["error_message"] as? String ?? "")))
+                    }
+                    return
                 }
                 
                 guard let status = responseJSON["attribution_status"] as? String else {

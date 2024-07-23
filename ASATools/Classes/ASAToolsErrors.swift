@@ -20,7 +20,7 @@ public enum ASAToolsErrorCodes: Int {
         case .unsupportedIOSVersion: return "Unfortunately, we're now only support iOS 14.3 and later."
         case .errorGeneratingAttributionToken: return "Could not generate on device attribution token."
         case .networkError: return "Network error."
-        case .errorResponseFromAppleAttribution: return "Error response from apple servers. Please try again later."
+        case .errorResponseFromAppleAttribution: return "We've got an error during the attribution, but we will try again later."
         case .errorResponseFromASATools: return "Internal service error. We will fix it soon!"
         case .debugAttributionTokenReceived: return "Everything configured properly, but you've sent a debug token."
         }
