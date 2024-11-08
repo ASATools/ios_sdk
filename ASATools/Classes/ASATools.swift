@@ -320,7 +320,9 @@ public class ASATools: NSObject {
                       let conversionType = AttributionResult.ConversionType.from(string: conversionTypeString),
                       let region = responseJSON["region"] as? String,
                       let campaignName = responseJSON["campaign_name"] as? String,
-                      let adGroupName = responseJSON["ad_group_name"] as? String
+                      let adGroupName = responseJSON["ad_group_name"] as? String,
+                      let claimTypeString = responseJSON["claim_type"] as? String,
+                      let claimType = AttributionResult.ClaimType.from(string: claimTypeString)
                 else {
                     completion(nil, ASAToolsErrorCodes.errorResponseFromASATools.error(message: "one of required fields is missing: " + (String(data: data, encoding: .utf8) ?? "")))
                           return
@@ -337,6 +339,7 @@ public class ASATools: NSObject {
                     keywordId: keywordId,
                     creativeSetId: creativeSetId,
                     conversionType: conversionType,
+                    claimType: claimType,
                     region: region,
                     campaignName: campaignName,
                     adGroupName: adGroupName,

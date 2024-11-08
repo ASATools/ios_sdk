@@ -16,6 +16,8 @@ extension ASATools.AttributionResponse {
             values["asa_ad_group_name"] = result.adGroupName
             values["asa_keyword_name"] = result.keywordName
             values["asa_store_country"] = result.region
+            values["asa_claim_type"] = result.claimType.description()
+            values["asa_conversion_type"] = result.conversionType.description()
             
             if let creativeSet = result.creativeSetId {
                 values["asa_creative_set_id"] = creativeSet.intValue

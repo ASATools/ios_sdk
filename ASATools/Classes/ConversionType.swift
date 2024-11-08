@@ -29,4 +29,26 @@ extension ASATools.AttributionResult {
             }
         }
     }
+    
+    @objc public enum ClaimType: Int {
+        case click
+        case view
+        
+        func description() -> String {
+            switch self {
+            case .click: return "click"
+            case .view: return "view"
+            }
+        }
+        
+        static func from(string: String) -> ClaimType? {
+            switch string {
+            case "click": return .click
+            case "view": return .view
+            default:
+                assert(false)
+                return nil
+            }
+        }
+    }
 }

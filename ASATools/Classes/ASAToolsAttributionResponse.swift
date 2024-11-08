@@ -38,6 +38,7 @@ extension ASATools {
         @objc public let keywordId: NSNumber? // may be nil for discovery campaigns
         @objc public let creativeSetId: NSNumber? // may be nil if you are not using custom creative set
         @objc public let conversionType: ConversionType
+        @objc public let claimType: ClaimType
         @objc public let region: String
         @objc public let campaignName: String
         @objc public let adGroupName: String
@@ -49,6 +50,7 @@ extension ASATools {
                 keywordId: Int?,
                 creativeSetId: Int?,
                 conversionType: ConversionType,
+                claimType: ClaimType,
                 region: String,
                 campaignName: String,
                 adGroupName: String,
@@ -59,6 +61,7 @@ extension ASATools {
             self.keywordId = keywordId == nil ? nil : NSNumber(value: keywordId!)
             self.creativeSetId = creativeSetId == nil ? nil : NSNumber(value: creativeSetId!)
             self.conversionType = conversionType
+            self.claimType = claimType
             self.region = region
             self.campaignName = campaignName
             self.adGroupName = adGroupName
